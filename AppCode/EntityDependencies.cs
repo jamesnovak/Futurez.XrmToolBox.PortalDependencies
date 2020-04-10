@@ -1,7 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
+using System.Xml.Linq;
+using System.Collections.Generic;
 
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Metadata;
+using System;
+using System.Workflow.Activities.Rules;
+using Microsoft.Xrm.Tooling.Connector;
 
 namespace Futurez.XrmToolBox
 {
@@ -11,21 +16,25 @@ namespace Futurez.XrmToolBox
             base(service, utility, baseServerUrl) { 
         }
 
-        public List<DependencyItem> LoadDependencies(EntityMetadata entity) 
+        public List<DependencyItem> LoadDependencies(EntityMetadata entity, string websiteId) 
         {
             var dependencyItems = new List<DependencyItem>();
+            var search = new List<string>() { entity.LogicalName };
 
-            // load the fetch for Entity Form search
-            ProcessQuery("entity_entity_form", entity.LogicalName, dependencyItems);
+            var queryEl = GetQueryElement("entity_webpage", websiteId);
+            ProcessQuery(queryEl, search, dependencyItems);
 
-            // load the fetch for Entity List search
-            ProcessQuery("entity_entity_list", entity.LogicalName, dependencyItems);
+            queryEl = GetQueryElement("entity_entity_form", websiteId);
+            ProcessQuery(queryEl, search, dependencyItems);
 
-            // load the fetch for Web Form Step search
-            ProcessQuery("entity_webformstep", entity.LogicalName, dependencyItems);
+            queryEl = GetQueryElement("entity_entity_list", websiteId);
+            ProcessQuery(queryEl, search, dependencyItems);
+            
+            queryEl = GetQueryElement("entity_webformstep", websiteId);
+            ProcessQuery(queryEl, search, dependencyItems);
 
-            // load the fetch for Web Template search
-            ProcessQuery("general_webtemplate", entity.LogicalName, dependencyItems);
+            queryEl = GetQueryElement("general_webtemplate", websiteId);
+            ProcessQuery(queryEl, search, dependencyItems);
 
             return dependencyItems;
         }

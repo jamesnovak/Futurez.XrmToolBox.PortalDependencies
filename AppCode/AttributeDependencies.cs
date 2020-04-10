@@ -3,56 +3,38 @@ using System.Collections.Generic;
 
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Metadata;
-using System.Xml.Linq;
-using Microsoft.Xrm.Sdk.Deployment;
 
 namespace Futurez.XrmToolBox
 {
-    public class AttributeDependencies : DependencyBase
+    public class AttributeDependencies : DependencyBase, IChildDependencies
     {
-
         public AttributeDependencies(IOrganizationService service, Utility utility, string baseServerUrl) :
-            base(service, utility, baseServerUrl)
-        {
-        }
-
-        public List<DependencyItem> LoadDependencies(List<AttributeMetadata> attributes)
-        {
-            var dependencyItems = new List<DependencyItem>();
-            var attNames = attributes.Select(a => a.LogicalName).ToList();
-
-            // load the fetch for Web Template search
-            ProcessQuery("general_webtemplate", attNames, dependencyItems);
-
-            // special query for entity forms and attributes
-            ProcessEntityFormQuery(attributes, dependencyItems);
-
-            return dependencyItems;
+            base(service, utility, baseServerUrl) {
         }
 
         /// <summary>
-        /// Process the query for the list of search values
+        /// Process the dependencies for the Attributes
         /// </summary>
-        /// <param name="queryName"></param>
-        /// <param name="searchValues"></param>
-        /// <param name="dependencyItems"></param>
-        private void ProcessEntityFormQuery(List<AttributeMetadata> attribs, List<DependencyItem> dependencyItems)
+        /// <param name="itemsList"></param>
+        /// <param name="entityName"></param>
+        /// <returns></returns>
+        public List<DependencyItem> ProcessDependencies(List<object> itemsList, string entityName, string websiteId)
         {
-            // clone it so we are not updating the source
-            var element = new XElement(_utility.GetFetchXmlElement("attribute_entityform").Parent);
+            var attributes = itemsList.ConvertAll<AttributeMetadata>(a => a as AttributeMetadata);
+            var dependencyItems = new List<DependencyItem>();
+            var attNames = attributes.Select(a => a.LogicalName).ToList();
+            var entName = attributes[0].EntityLogicalName;
 
-            // need to set the parent in the fetch
-            var entName = attribs[0].EntityLogicalName;
-            var attNames = attribs.Select(a => a.LogicalName).ToList();
-
-            element.Element("fetch")
-                .Descendants("condition")
-                .Where(c => c.Attribute("attribute").Value == "adx_entityname")
-                .FirstOrDefault()
-                .SetAttributeValue("value", entName);
-
-            // now handle the standard processing 
+            // load the fetch for Web Template search
+            var element = GetQueryElement("general_webtemplate", websiteId);
             ProcessQuery(element, attNames, dependencyItems);
+
+            // special query for entity forms and attributes
+            // ProcessEntityFormQuery(attributes, dependencyItems);
+            ProcessEntityQuery("attribute_entityform", entName, websiteId, attNames, dependencyItems);
+            ProcessEntityQuery("attribute_entitylist", entName, websiteId, attNames, dependencyItems);
+
+            return dependencyItems;
         }
     }
 }

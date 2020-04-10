@@ -1,15 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.DirectoryServices.ActiveDirectory;
 using System.Linq;
 using System.Xml.Linq;
-using Microsoft.IdentityModel.Web;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 
 namespace Futurez.XrmToolBox
 {
+    public interface IChildDependencies 
+    {
+        List<DependencyItem> ProcessDependencies(List<object> itemsList, string entityName, string websiteId);
+    }
+
     public class DependencyBase
     {
         internal IOrganizationService _service;
@@ -27,11 +29,31 @@ namespace Futurez.XrmToolBox
             ProcessQuery(queryName, new List<string>() { searchValue }, dependencyItems);
         }
 
-
         internal void ProcessQuery(string queryName, List<string> searchValues, List<DependencyItem> dependencyItems)
         {
             var element = new XElement(_utility.GetFetchXmlElement(queryName).Parent);
 
+            ProcessQuery(element, searchValues, dependencyItems);
+        }
+
+        /// <summary>
+        /// Process a query for the list of search values
+        /// </summary>
+        /// <param name="queryName"></param>
+        /// <param name="searchValues"></param>
+        /// <param name="dependencyItems"></param>
+        internal void ProcessEntityQuery(string queryName, string entityName, string websiteId, List<string> searchValues, List<DependencyItem> dependencyItems)
+        {
+            var element = GetQueryElement(queryName, websiteId);
+
+            // need to set the parent in the fetch
+            element.Element("fetch")
+                .Descendants("condition")
+                .Where(c => c.Attribute("attribute").Value == "adx_entityname")
+                .FirstOrDefault()
+                .SetAttributeValue("value", entityName);
+
+            // now handle the standard processing 
             ProcessQuery(element, searchValues, dependencyItems);
         }
 
@@ -49,15 +71,19 @@ namespace Futurez.XrmToolBox
 
             var conditionAttrs = new List<string>();
 
+            // grab the filter element that we want to update
             var filter = fetch.Element("entity")
-                              .Element("filter");
-
+                              .Elements("filter")
+                              .Where(a => a.Attribute("filter").Value == "true")
+                              .FirstOrDefault();
+            // clone the conditions so we are not updating the doc each time 
             var conditions = filter
-                .Elements("condition")
+                .Descendants("condition")
                 .Where(c => c.Attribute("operator").Value != "null")
                 .Select(c => new XElement(c))
                 .ToArray();
 
+            // clear the items
             filter.Elements("condition")
                 .Where(c => c.Attribute("operator").Value != "null")
                 .Remove();
@@ -84,7 +110,9 @@ namespace Futurez.XrmToolBox
                 }
             }
             var response = _service.RetrieveMultiple(new FetchExpression(fetch.ToString()));
-
+            // iterate on the returned results
+            // for each item being searched, check to see if what we are looking for is in the list of attributes
+            // being returned.  one search item may match multople attributes
             foreach (var item in response.Entities)
             {
                 var values = new List<string>();
@@ -92,11 +120,6 @@ namespace Futurez.XrmToolBox
 
                 foreach (var i in item.Attributes.Where(a => conditionAttrs.Contains(a.Key)))
                 {
-                    // see which search value was found here 
-                    //var search = searchValues
-                    //    .Where(t => (bool)i.Value?.ToString().Contains(t))
-                    //    .Select(t => t).ToList();
-
                     findResults.Add(new FindResult() {
                                         SearchValues = searchValues,
                                         AttributeName = i.Key,
@@ -112,6 +135,42 @@ namespace Futurez.XrmToolBox
                     DependencySummary = string.Join(Environment.NewLine, findResults.Select(x => x.ToString()))
                 });
             }
+        }
+
+        /// <summary>
+        /// Helper method to get a fetch element from the config and prep the website Id
+        /// </summary>
+        /// <param name="queryName"></param>
+        /// <param name="websiteId"></param>
+        /// <returns></returns>
+        internal XElement GetQueryElement(string queryName, string websiteId)
+        {
+            // clone it so we are not updating the source
+            var element = new XElement(_utility.GetFetchXmlElement(queryName).Parent);
+
+            // need to set the parent in the fetch
+            var cond = element.Element("fetch")
+                .Descendants("condition")
+                .Where(c => c.Attribute("attribute").Value == "adx_websiteid")
+                .FirstOrDefault();
+
+            // if the website ID is passed, then add it as a filter
+            if (websiteId != null)
+            {
+                cond.SetAttributeValue("value", websiteId);
+            }
+            else
+            {
+                // if this is the only condition, remove the filter
+                var filter = cond.Parent as XElement;
+                if (filter.Elements("condition").ToList().Count == 1) {
+                    filter.Remove();
+                }
+                else {
+                    cond.Remove();
+                }
+            }
+            return element;
         }
     }
 }

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+	<metadata>
+		<id>Futurez.XrmToolBox.PortalDependencies</id>
+		<version>1.2020.04.10</version>
+		<title>Portal Dependencies Checker</title>
+		<authors>jamesnovak</authors>
+		<owners>jamesnovak</owners>
+		<projectUrl>https://github.com/jamesnovak/Futurez.XrmToolBox.PortalSiteSettings</projectUrl>
+		<icon>images\futurez.png</icon>
+		<license type="expression">MIT</license>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>Check for dependencies on CDS objects within your Portal Configuration.</description>
+		<releaseNotes>Initial Release</releaseNotes>
+		<copyright>Copyright © Futurez Consulting 2020</copyright>
+		<tags>XrmToolBox Portal Dependencies Checker</tags>
+		<dependencies>
+			<dependency id="XrmToolBox" version="1.2020.2.37" />
+		</dependencies>
+	</metadata>
+	<files>
+		<file src="images\futurez.png" target="images\" />
+		<file src="lib\net47\Plugins\Futurez.XrmToolBox.PortalDependencies.dll" target="lib\net47\Plugins" />
+		<file src="lib\net47\Plugins\Futurez.XrmToolBox.PortalDependencies\xrmtb.XrmToolBox.Controls.dll" target="lib\net47\Plugins\Futurez.XrmToolBox.PortalDependencies" />
+	</files>
+</package>

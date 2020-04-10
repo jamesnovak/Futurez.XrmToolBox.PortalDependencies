@@ -14,6 +14,8 @@ namespace Futurez.XrmToolBox
     /// </remarks>
     public class Settings
     {
-        public string LastUsedOrganizationWebappUrl { get; set; }
+        // public string LastUsedOrganizationWebappUrl { get; set; }
+        public int? VSplitterPos { get; set; }
+        public int? HSplitterPos { get; set; }
     }
 }

@@ -1,14 +1,9 @@
-﻿using Microsoft.Xrm.Sdk;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Futurez.XrmToolBox
 {
-    public class DependencyItem // : EntityReference
+    public class DependencyItem 
     {
         private string _recordUrl = null;
         private string _baseServerUrl = null;
@@ -24,6 +19,9 @@ namespace Futurez.XrmToolBox
         {
             Id = id;
             LogicalName = logicalName;
+            if (!baseServerUrl.EndsWith("/")) {
+                _baseServerUrl += "/";
+            }
             _baseServerUrl = baseServerUrl;
         }
 
@@ -68,12 +66,7 @@ namespace Futurez.XrmToolBox
                 {
                     if (!string.IsNullOrEmpty(LogicalName) && !Id.Equals(Guid.Empty))
                     {
-                        _recordUrl = string.Concat(_baseServerUrl,
-                            _baseServerUrl.EndsWith("/") ? "" : "/",
-                            "main.aspx?etn=",
-                            LogicalName,
-                            "&pagetype=entityrecord&id=",
-                            Id.ToString());
+                        _recordUrl = $"{_baseServerUrl}main.aspx?etn={LogicalName}&newWindow=true&pagetype=entityrecord&id={Id.ToString()}";
                     }
                 }
                 return _recordUrl;
@@ -104,9 +97,9 @@ namespace Futurez.XrmToolBox
 
         public override string ToString()
         {
-            return $"Search Item(s):'{String.Join("','", SearchValues)}'{Environment.NewLine}" +
+            return // $"Search Item(s):'{String.Join("','", SearchValues)}'{Environment.NewLine}" +
                 $"Attribute: '{AttributeName}'{Environment.NewLine}" +
-                $"Value: {AttributeValue}";
+                $"Value: {AttributeValue}{Environment.NewLine}";
         }
     }
 }

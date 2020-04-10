@@ -1,34 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <queries>
-  <query id="entity_by_name">
-    <fetch version="1.0" mapping="logical" >
-      <entity name="adx_entityform" >
-        <attribute name="adx_name" />
-        <attribute name="adx_registerstartupscript" />
-        <order attribute="adx_name" descending="false" />
-        <filter type="and" >
-          <condition attribute="statecode" operator="eq" value="0" />
-          <filter type="or" >
-            <condition attribute="adx_registerstartupscript" operator="like" value="powup_powerupevent" />
-            <condition attribute="adx_entityname" operator="like" value="powup_powerupevent" />
-          </filter>
-        </filter>
-        <attribute name="adx_tabname" />
-        <attribute name="adx_formname" />
-        <attribute name="adx_entityname" />
-        <attribute name="adx_entityformid" />
-      </entity>
-    </fetch>
-  </query>
+  <!-- CDS Entity related data -->
   <query id="forms_for_entity">
     <fetch>
-      <entity name="systemform" >
+      <entity name="systemform">
         <attribute name="formid" />
         <attribute name="objecttypecode" />
         <attribute name="name" />
         <attribute name="type" />
         <attribute name="description" />
-        <filter type="and" >
+        <filter type="and">
           <condition attribute="objecttypecode" operator="eq" value="{otc}" />
         </filter>
       </entity>
@@ -36,7 +17,7 @@
   </query>
   <query id="views_for_entity">
     <fetch>
-      <entity name="savedquery" >
+      <entity name="savedquery">
         <attribute name="name" />
         <attribute name="savedqueryid" />
         <attribute name="description" />
@@ -47,17 +28,21 @@
       </entity>
     </fetch>
   </query>
+  <!-- CDS Entity -->
   <query id="entity_entity_form" name="Entity Form" primaryfield="adx_name">
     <fetch>
-      <entity name="adx_entityform" >
+      <entity name="adx_entityform">
         <attribute name="adx_name" />
         <attribute name="adx_entityname" />
         <attribute name="adx_registerstartupscript"/>
         <attribute name="adx_referenceentitylogicalname" />
-        <filter type="or" >
+        <filter type="or" filter="true">
           <condition attribute="adx_entityname" operator="eq" />
           <condition attribute="adx_registerstartupscript" operator="like" />
           <condition attribute="adx_referenceentitylogicalname" operator="eq" />
+        </filter>
+        <filter type="and">
+          <condition attribute="adx_websiteid" operator="eq" />
         </filter>
       </entity>
     </fetch>
@@ -69,84 +54,189 @@
         <attribute name="adx_entitylistid" />
         <attribute name="adx_entityname" />
         <attribute name="adx_registerstartupscript" />
-        <filter type="or" >
+        <filter type="or" filter="true">
           <condition attribute="adx_entityname" operator="eq" />
           <condition attribute="adx_registerstartupscript" operator="like" />
+        </filter>
+        <filter type="and">
+          <condition attribute="adx_websiteid" operator="eq" />
         </filter>
       </entity>
     </fetch>
   </query>
   <query id="entity_webformstep" name="Web Form Step" primaryfield="adx_name">
     <fetch>
-      <entity name="adx_webformstep" >
+      <entity name="adx_webformstep">
         <attribute name="adx_name" />
         <attribute name="adx_webformstepid" />
         <attribute name="adx_targetentitylogicalname" />
         <attribute name="adx_registerstartupscript" />
-        <filter type="or" >
+        <filter type="or" filter="true">
           <condition attribute="adx_targetentitylogicalname" operator="eq" />
-          <condition attribute="adx_registerstartupscript" operator="like" value="%%" />
+          <condition attribute="adx_registerstartupscript" operator="like" />
+        </filter>
+        <filter type="and">
+          <condition attribute="adx_websiteid" operator="eq" />
         </filter>
       </entity>
     </fetch>
   </query>
-  <query id="general_webtemplate" name="Web Template" primaryfield="adx_name">
+  <query id="entity_webpage" name="Web Page" primaryfield="adx_name">
     <fetch>
-      <entity name="adx_webtemplate" >
+      <entity name="adx_webpage">
         <attribute name="adx_name" />
-        <attribute name="adx_webtemplateid" />
-        <attribute name="adx_source" />
-        <filter type="or" >
-          <condition attribute="adx_source" operator="like" />
+        <attribute name="adx_customcss" />
+        <attribute name="adx_customjavascript" />
+        <filter type="or" filter="true">
+          <condition attribute="adx_customcss" operator="like" />
+          <condition attribute="adx_customjavascript" operator="like" />
+        </filter>
+        <filter type="and">
+          <condition attribute="adx_websiteid" operator="eq" />
         </filter>
       </entity>
     </fetch>
   </query>
+  <!-- CDS Attribute -->
   <query id="attribute_entityformmetadata" name="Entity Form Metadata" primaryfield="adx_name">
     <fetch>
-      <entity name="adx_entityformmetadata" >
+      <entity name="adx_entityformmetadata">
         <attribute name="adx_name" />
         <attribute name="adx_attributelogicalname" />
         <attribute name="adx_prepopulatefromattribute" />
         <attribute name="adx_onsavefromattribute" />
-        <filter>
+        <filter type="or" filter="true">
           <condition attribute="adx_attributelogicalname" operator="eq" />
         </filter>
-        <link-entity name="adx_entityform" from="adx_entityformid" to="adx_entityform" link-type="inner" alias="ent" >
+        <link-entity name="adx_entityform" from="adx_entityformid" to="adx_entityform" link-type="inner" alias="ent">
           <attribute name="adx_name" />
           <filter>
             <condition attribute="adx_entityname" operator="eq" />
+            <condition attribute="adx_websiteid" operator="eq" />
           </filter>
         </link-entity>
       </entity>
     </fetch>
   </query>
-
+  <!-- CDS Attribute -->
   <query id="attribute_entityform" name="Entity Form" primaryfield="adx_name">
     <fetch>
       <entity name="adx_entityform">
         <attribute name="adx_name" />
+        <attribute name="adx_websiteid" />
         <attribute name="adx_redirecturlquerystringattribute" />
         <attribute name="adx_targetentityportaluserlookupattribute" />
         <attribute name="adx_referencetargetlookupattributelogicalname" />
         <attribute name="adx_redirecturlquerystringattributeparamname" />
         <attribute name="adx_referencequeryattributelogicalname" />
-        <filter type="or">
+        <filter type="or" filter="true">
           <condition attribute="adx_redirecturlquerystringattribute" operator="eq" />
           <condition attribute="adx_targetentityportaluserlookupattribute" operator="eq" />
           <condition attribute="adx_referencetargetlookupattributelogicalname" operator="eq" />
           <condition attribute="adx_redirecturlquerystringattributeparamname" operator="eq" />
           <condition attribute="adx_referencequeryattributelogicalname" operator="eq" />
-          <condition attribute="adx_redirecturlquerystringattribute" operator="null" />
-          <condition attribute="adx_targetentityportaluserlookupattribute" operator="null" />
-          <condition attribute="adx_referencetargetlookupattributelogicalname" operator="null" />
-          <condition attribute="adx_redirecturlquerystringattributeparamname" operator="null" />
-          <condition attribute="adx_referencequeryattributelogicalname" operator="null" />
         </filter>
         <filter>
           <condition attribute="adx_entityname" operator="eq" />
+          <condition attribute="adx_websiteid" operator="eq" />
         </filter>
       </entity>
-    </fetch>    
+    </fetch>
+  </query>
+  <query id="attribute_entitylist" name="Entity List" primaryfield="adx_name">
+    <fetch>
+      <entity name="adx_entitylist">
+        <attribute name="adx_entitylistid" />
+        <attribute name="adx_name" />
+        <attribute name="adx_entityname" />
+        <attribute name="adx_websiteid" />
+        <attribute name="adx_calendar_alldayfieldname" />
+        <attribute name="adx_calendar_descriptionfieldname" />
+        <attribute name="adx_map_latitudefieldname" />
+        <attribute name="adx_calendar_enddatefieldname" />
+        <attribute name="adx_calendar_organizerfieldname" />
+        <attribute name="adx_map_longitudefieldname" />
+        <attribute name="adx_calendar_locationfieldname" />
+        <attribute name="adx_map_infoboxtitlefieldname" />
+        <attribute name="adx_calendar_startdatefieldname" />
+        <attribute name="adx_calendar_summaryfieldname" />
+        <attribute name="adx_map_infoboxdescriptionfieldname" />
+        <attribute name="adx_registerstartupscript" />
+        <attribute name="adx_filter_definition" />
+        <attribute name="adx_settings" />
+        <filter type="or" filter="true">
+          <condition attribute="adx_calendar_alldayfieldname" operator="eq" />
+          <condition attribute="adx_calendar_descriptionfieldname" operator="eq" />
+          <condition attribute="adx_map_latitudefieldname" operator="eq" />
+          <condition attribute="adx_calendar_enddatefieldname" operator="eq" />
+          <condition attribute="adx_calendar_organizerfieldname" operator="eq" />
+          <condition attribute="adx_map_longitudefieldname" operator="eq" />
+          <condition attribute="adx_calendar_locationfieldname" operator="eq" />
+          <condition attribute="adx_map_infoboxtitlefieldname" operator="eq" />
+          <condition attribute="adx_calendar_startdatefieldname" operator="eq" />
+          <condition attribute="adx_calendar_summaryfieldname" operator="eq" />
+          <condition attribute="adx_map_infoboxdescriptionfieldname" operator="eq" />
+          <condition attribute="adx_filter_definition" operator="like" />
+          <condition attribute="adx_registerstartupscript" operator="like" />
+          <condition attribute="adx_settings" operator="like" />
+        </filter>
+        <filter type="and">
+          <condition attribute="adx_entityname" operator="eq" />
+          <condition attribute="adx_websiteid" operator="eq" />
+        </filter>
+      </entity>
+    </fetch>
+  </query>
+  <!-- CDS Forms -->
+  <query id="form_entityform" name="Entity Form" primaryfield="adx_name">
+    <fetch>
+      <entity name="adx_entityform">
+        <attribute name="adx_name" />
+        <attribute name="adx_entityformid" />
+        <attribute name="adx_formname" />
+        <filter type="or" filter="true">
+          <condition attribute="adx_formname" operator="eq" />
+        </filter>
+        <filter type="and">
+          <condition attribute="adx_entityname" operator="eq" />
+          <condition attribute="adx_websiteid" operator="eq" />
+        </filter>
+      </entity>
+    </fetch>
+  </query>
+  <query id="view_entitylist" name="Entity View" primaryfield="adx_name">
+    <fetch>
+      <entity name="adx_entitylist">
+        <attribute name="adx_name" />
+        <attribute name="adx_entityname" />
+        <attribute name="adx_view" />
+        <attribute name="adx_views" />
+        <filter type="or" filter="true">
+          <condition attribute="adx_view" operator="like" />
+          <condition attribute="adx_views" operator="like" />
+          <condition attribute="adx_registerstartupscript" operator="like" />
+        </filter>
+        <filter type="and">
+          <condition attribute="adx_entityname" operator="eq" />
+          <condition attribute="adx_websiteid" operator="eq" />
+        </filter>
+      </entity>
+    </fetch>
+  </query>
+  <!-- General/cross object -->
+  <query id="general_webtemplate" name="Web Template" primaryfield="adx_name">
+    <fetch>
+      <entity name="adx_webtemplate">
+        <attribute name="adx_name" />
+        <attribute name="adx_webtemplateid" />
+        <attribute name="adx_source" />
+        <filter type="or" filter="true">
+          <condition attribute="adx_source" operator="like" />
+        </filter>
+        <filter type="and">
+          <condition attribute="adx_websiteid" operator="eq" />
+        </filter>
+      </entity>
+    </fetch>
   </query>
 </queries>
