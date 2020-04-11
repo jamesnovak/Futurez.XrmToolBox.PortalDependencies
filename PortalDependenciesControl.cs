@@ -684,8 +684,7 @@ namespace Futurez.XrmToolBox
         /// <param name="findItems"></param>
         private void HighlightSelections(List<string> findItems, int startOffset = 0)
         {
-            int startindex = startOffset;
-
+            
             richTextSummary.SelectionStart = 0;
             richTextSummary.SelectionLength = startOffset;
             richTextSummary.SelectionFont = new Font(richTextSummary.Font, FontStyle.Bold);
@@ -693,6 +692,8 @@ namespace Futurez.XrmToolBox
             var counter = 0;
             foreach (var findItem in findItems) 
             {
+                int startindex = startOffset;
+
                 var highlight = _utility.GetHighlightColor(counter++);
 
                 while (startindex < richTextSummary.TextLength)

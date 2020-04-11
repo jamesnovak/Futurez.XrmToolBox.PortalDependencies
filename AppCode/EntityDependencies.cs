@@ -21,20 +21,23 @@ namespace Futurez.XrmToolBox
             var dependencyItems = new List<DependencyItem>();
             var search = new List<string>() { entity.LogicalName };
 
-            var queryEl = GetQueryElement("entity_webpage", websiteId);
-            ProcessQuery(queryEl, search, dependencyItems);
+            var element = GetQueryElement("entity_webpage", websiteId);
+            ProcessQuery(element, search, dependencyItems);
 
-            queryEl = GetQueryElement("entity_entity_form", websiteId);
-            ProcessQuery(queryEl, search, dependencyItems);
+            element = GetQueryElement("entity_entity_form", websiteId);
+            ProcessQuery(element, search, dependencyItems);
 
-            queryEl = GetQueryElement("entity_entity_list", websiteId);
-            ProcessQuery(queryEl, search, dependencyItems);
+            element = GetQueryElement("entity_entity_list", websiteId);
+            ProcessQuery(element, search, dependencyItems);
             
-            queryEl = GetQueryElement("entity_webformstep", websiteId);
-            ProcessQuery(queryEl, search, dependencyItems);
+            element = GetQueryElement("entity_webformstep", websiteId);
+            ProcessQuery(element, search, dependencyItems);
 
-            queryEl = GetQueryElement("general_webtemplate", websiteId);
-            ProcessQuery(queryEl, search, dependencyItems);
+            element = GetQueryElement("shared_webtemplate", websiteId);
+            ProcessQuery(element, search, dependencyItems);
+
+            element = GetQueryElement("shared_contentsnippet", websiteId);
+            ProcessQuery(element, search, dependencyItems);
 
             return dependencyItems;
         }

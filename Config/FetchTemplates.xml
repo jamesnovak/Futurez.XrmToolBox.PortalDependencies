@@ -224,7 +224,7 @@
     </fetch>
   </query>
   <!-- General/cross object -->
-  <query id="general_webtemplate" name="Web Template" primaryfield="adx_name">
+  <query id="shared_webtemplate" name="Web Template" primaryfield="adx_name">
     <fetch>
       <entity name="adx_webtemplate">
         <attribute name="adx_name" />
@@ -238,5 +238,22 @@
         </filter>
       </entity>
     </fetch>
+  </query>
+  <query id="shared_contentsnippet" name="Content Snippet" primaryfield="adx_name">
+    <fetch>
+      <entity name="adx_contentsnippet" >
+        <attribute name="adx_name" />
+        <attribute name="adx_websiteid" />
+        <attribute name="adx_contentsnippetid" />
+        <attribute name="adx_value" />
+        <filter type="or" filter="true">
+          <condition attribute="adx_value" operator="like" />
+        </filter>
+        <filter type="and" >
+          <condition attribute="adx_websiteid" operator="eq" />
+        </filter>
+      </entity>
+    </fetch>
+
   </query>
 </queries>

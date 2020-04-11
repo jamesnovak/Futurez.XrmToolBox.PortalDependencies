@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
@@ -76,6 +77,7 @@ namespace Futurez.XrmToolBox
                               .Elements("filter")
                               .Where(a => a.Attribute("filter").Value == "true")
                               .FirstOrDefault();
+
             // clone the conditions so we are not updating the doc each time 
             var conditions = filter
                 .Descendants("condition")
@@ -88,6 +90,7 @@ namespace Futurez.XrmToolBox
                 .Where(c => c.Attribute("operator").Value != "null")
                 .Remove();
             
+            // for each of the conditions we have in our fetch, add the condition value
             foreach (var cond in conditions)
             {
                 // save the list of conditions so we can filter later
@@ -96,7 +99,7 @@ namespace Futurez.XrmToolBox
                 if (!conditionAttrs.Contains(name)) { 
                     conditionAttrs.Add(name); 
                 }
-
+                // update the condition operators
                 foreach (var search in searchValues)
                 {
                     // apply the filter based on the operator.  like needs the mask 
@@ -110,30 +113,47 @@ namespace Futurez.XrmToolBox
                 }
             }
             var response = _service.RetrieveMultiple(new FetchExpression(fetch.ToString()));
+
             // iterate on the returned results
             // for each item being searched, check to see if what we are looking for is in the list of attributes
             // being returned.  one search item may match multople attributes
             foreach (var item in response.Entities)
             {
+                // var re = new Regex($"(^|['\"\s\n\r\t\.]){}(['\"\s\n\r\t\.]|$)");
                 var values = new List<string>();
                 var findResults = new List<FindResult>();
 
                 foreach (var i in item.Attributes.Where(a => conditionAttrs.Contains(a.Key)))
                 {
-                    findResults.Add(new FindResult() {
-                                        SearchValues = searchValues,
-                                        AttributeName = i.Key,
-                                        AttributeValue = i.Value?.ToString()
-                                    });
+                    foreach (var s in searchValues)
+                    {
+                        // now check each condition.  if the find is not an exact match, check the regex to see if the correct match exists.  
+                        var match = (s == i.Value?.ToString());
+                        if (!match) {
+                            var re = new Regex($"(^|[^a-z])*{s}([^a-z]|$)");
+                            match = re.IsMatch(i.Value?.ToString());
+                        }
+                        if (match)
+                        {
+                            findResults.Add(new FindResult()
+                            {
+                                SearchValues = searchValues,
+                                AttributeName = i.Key,
+                                AttributeValue = i.Value?.ToString()
+                            });
+                        }
+                    }
                 }
-
-                dependencyItems.Add(new DependencyItem(item.LogicalName, item.Id, _baseServerUrl)
+                if (findResults.Count > 0)
                 {
-                    RecordPrimaryField = item[primaryfield].ToString(),
-                    DisplayName = displayName,
-                    FindResults = findResults,
-                    DependencySummary = string.Join(Environment.NewLine, findResults.Select(x => x.ToString()))
-                });
+                    dependencyItems.Add(new DependencyItem(item.LogicalName, item.Id, _baseServerUrl)
+                    {
+                        RecordPrimaryField = item[primaryfield].ToString(),
+                        DisplayName = displayName,
+                        FindResults = findResults,
+                        DependencySummary = string.Join(Environment.NewLine, findResults.Select(x => x.ToString()))
+                    });
+                }
             }
         }
 

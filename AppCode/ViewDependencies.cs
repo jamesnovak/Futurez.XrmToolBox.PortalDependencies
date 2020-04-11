@@ -24,7 +24,10 @@ namespace Futurez.XrmToolBox
             var views = itemsList.ConvertAll<Entity>(i => i as Entity);
             var viewIds = views.Select(a => a.Id.ToString()).ToList();
             
-            ProcessEntityQuery("view_entitylist", entityName, websiteId, viewIds, dependencyItems);  
+            ProcessEntityQuery("view_entitylist", entityName, websiteId, viewIds, dependencyItems);
+
+            var element = GetQueryElement("shared_contentsnippet", websiteId);
+            ProcessQuery(element, viewIds, dependencyItems);
 
             return dependencyItems;
         }

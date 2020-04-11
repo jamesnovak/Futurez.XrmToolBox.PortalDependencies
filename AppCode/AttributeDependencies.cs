@@ -6,6 +6,9 @@ using Microsoft.Xrm.Sdk.Metadata;
 
 namespace Futurez.XrmToolBox
 {
+    /// <summary>
+    /// Hanldes retrieving dependencies for Attributes
+    /// </summary>
     public class AttributeDependencies : DependencyBase, IChildDependencies
     {
         public AttributeDependencies(IOrganizationService service, Utility utility, string baseServerUrl) :
@@ -26,7 +29,10 @@ namespace Futurez.XrmToolBox
             var entName = attributes[0].EntityLogicalName;
 
             // load the fetch for Web Template search
-            var element = GetQueryElement("general_webtemplate", websiteId);
+            var element = GetQueryElement("shared_webtemplate", websiteId);
+            ProcessQuery(element, attNames, dependencyItems);
+
+            element = GetQueryElement("shared_contentsnippet", websiteId);
             ProcessQuery(element, attNames, dependencyItems);
 
             // special query for entity forms and attributes

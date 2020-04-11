@@ -25,6 +25,9 @@ namespace Futurez.XrmToolBox
             var formNames = forms.Select(a => a.Attributes["name"].ToString()).ToList();
             
             ProcessEntityQuery("form_entityform", entityName, websiteId, formNames, dependencyItems);
+            
+            var element = GetQueryElement("shared_contentsnippet", websiteId);
+            ProcessQuery(element, formNames, dependencyItems);
 
             return dependencyItems;
         }
