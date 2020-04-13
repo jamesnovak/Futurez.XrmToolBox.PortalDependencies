@@ -6,7 +6,8 @@
 		<title>Portal Dependencies Checker</title>
 		<authors>jamesnovak</authors>
 		<owners>jamesnovak</owners>
-		<projectUrl>https://github.com/jamesnovak/Futurez.XrmToolBox.PortalSiteSettings</projectUrl>
+		<projectUrl>https://github.com/jamesnovak/Futurez.XrmToolBox.PortalDependencies</projectUrl>
+		<repository type="git" url="https://github.com/jamesnovak/Futurez.XrmToolBox.PortalDependencies.git" />
 		<icon>images\futurez.png</icon>
 		<license type="expression">MIT</license>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -14,7 +15,7 @@
 		<releaseNotes>Initial Release: Check for CDS dependencies in Portal records for Entities, CDS Forms, CDS Views, and Entity Attrinutes
 		</releaseNotes>
 		<copyright>Copyright © Futurez Consulting 2020</copyright>
-		<tags>XrmToolBox Portal Dependencies Checker</tags>
+		<tags>XrmToolBox Power Apps Portal Dependencies Viewer</tags>
 		<dependencies>
 			<dependency id="XrmToolBox" version="1.2020.2.37" />
 		</dependencies>
