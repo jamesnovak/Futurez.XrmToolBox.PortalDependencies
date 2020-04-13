@@ -1,43 +1,45 @@
-﻿using System.Linq;
-using System.Xml.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Metadata;
-using System;
-using System.Workflow.Activities.Rules;
-using Microsoft.Xrm.Tooling.Connector;
 
 namespace Futurez.XrmToolBox
 {
-    public class EntityDependencies: DependencyBase
+    public class EntityDependencies: DependencyBase, IDependenciesProcessor
     {
         public EntityDependencies(IOrganizationService service, Utility utility, string baseServerUrl) : 
             base(service, utility, baseServerUrl) { 
         }
 
-        public List<DependencyItem> LoadDependencies(EntityMetadata entity, string websiteId) 
+        /// <summary>
+        /// Process the dependencies for the Entity
+        /// </summary>
+        /// <param name="entityName">Name of the Entity being searched</param>
+        /// <param name="websiteId">ID of the website being searched</param>
+        /// <param name="itemsList">List of search items </param>
+        /// <returns>List of DependencyItems found in the Portal entities</returns>
+        public List<DependencyItem> ProcessDependencies(string entityName, string websiteId = null, List<object> itemsList = null)
         {
             var dependencyItems = new List<DependencyItem>();
-            var search = new List<string>() { entity.LogicalName };
+            var searchList = new List<string>() { entityName };
 
             var element = GetQueryElement("entity_webpage", websiteId);
-            ProcessQuery(element, search, dependencyItems);
+
+            ProcessQuery(element, searchList, dependencyItems);
 
             element = GetQueryElement("entity_entity_form", websiteId);
-            ProcessQuery(element, search, dependencyItems);
+            ProcessQuery(element, searchList, dependencyItems);
 
             element = GetQueryElement("entity_entity_list", websiteId);
-            ProcessQuery(element, search, dependencyItems);
-            
+            ProcessQuery(element, searchList, dependencyItems);
+
             element = GetQueryElement("entity_webformstep", websiteId);
-            ProcessQuery(element, search, dependencyItems);
+            ProcessQuery(element, searchList, dependencyItems);
 
             element = GetQueryElement("shared_webtemplate", websiteId);
-            ProcessQuery(element, search, dependencyItems);
+            ProcessQuery(element, searchList, dependencyItems);
 
             element = GetQueryElement("shared_contentsnippet", websiteId);
-            ProcessQuery(element, search, dependencyItems);
+            ProcessQuery(element, searchList, dependencyItems);
 
             return dependencyItems;
         }

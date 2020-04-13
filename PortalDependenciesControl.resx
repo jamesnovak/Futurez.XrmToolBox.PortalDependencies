@@ -146,7 +146,19 @@
         zIC2AAAAAElFTkSuQmCC
 </value>
   </data>
-  <data name="listViewAttributes.ListViewColDefs" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="toolButtonOpen.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAAGdYAABnWARjRyu0AAAFgSURBVDhPpVM9SwNBEB0VxCa9GBDRLv9CsBIloJ67MzEG
+        glgqItFC0FLsLBTs/RdibykWllZWForYSPDzzc7qHeedBnzwuPl4+3ZvPyhFMkjE50TykeN+FAB8kNbd
+        M75XsaHgWWvwOlGjhTgxurEoAGTcav7CtNJF0Y8g2MSgJSsmAyYuA++azl/D/A0Fd4PCIxor1tjrN2ER
+        eMc0fATORwN5BZtYwYI1qS9of4A71pdjJNC4iRirC3sk+s9qUABZs56cIMlPIO+gA9UAcR48HTWHSIpW
+        p02/mPmFHJqj6LVjkkEyDP0GguCO2csMyiAzIPbv20DmQBj8dgpZBP1/DMLGq4Gegu6B1M2gNWSCvxBu
+        65eBnkKjhu8LiEvlbkFcsFLegXgL7hIGOshzMCWZxNK2e6Ne/+UqBvknJKfgakqv70L3Re9Hpq4PTVcg
+        UzZhgGyB92g89EY5I2pXbCzRJw4sm7US8PX9AAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="ListViewAttributes.ListViewColDefs" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAF94cm10Yi5Ycm1Ub29sQm94LkNvbnRyb2xzLCBWZXJzaW9uPTEu
         MjAyMC40LjksIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49MzRkZWYyYzQwNTAwYzYyYwUB
@@ -157,7 +169,7 @@
         ZQYEAAAAC1NjaGVtYSBOYW1lAAAAAAAAlgAAAAs=
 </value>
   </data>
-  <data name="listViewAttributes.ListViewColDefs1" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="ListViewAttributes.ListViewColDefs1" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAF94cm10Yi5Ycm1Ub29sQm94LkNvbnRyb2xzLCBWZXJzaW9uPTEu
         MjAyMC40LjksIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49MzRkZWYyYzQwNTAwYzYyYwUB
@@ -168,7 +180,7 @@
         bWUGBAAAAAxEaXNwbGF5IE5hbWUBAAAAAACWAAAACw==
 </value>
   </data>
-  <data name="listViewAttributes.ListViewColDefs2" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="ListViewAttributes.ListViewColDefs2" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAF94cm10Yi5Ycm1Ub29sQm94LkNvbnRyb2xzLCBWZXJzaW9uPTEu
         MjAyMC40LjksIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49MzRkZWYyYzQwNTAwYzYyYwUB
@@ -179,7 +191,7 @@
         VHlwZU5hbWUGBAAAAA5BdHRyaWJ1dGUgVHlwZQIAAAABAGQAAAAL
 </value>
   </data>
-  <data name="listViewAttributes.ListViewColDefs3" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="ListViewAttributes.ListViewColDefs3" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAF94cm10Yi5Ycm1Ub29sQm94LkNvbnRyb2xzLCBWZXJzaW9uPTEu
         MjAyMC40LjksIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49MzRkZWYyYzQwNTAwYzYyYwUB
@@ -190,7 +202,7 @@
         b24KAwAAAAAA+gAAAAs=
 </value>
   </data>
-  <data name="solutionsDropdown.PublisherPrefixes" mimetype="application/x-microsoft.net.object.binary.base64">
+  <data name="SolutionsDropdown.PublisherPrefixes" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAJoBbXNjb3JsaWIsIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1u
         ZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iNzdhNWM1NjE5MzRlMDg5XV0sIG1zY29ybGliLCBWZXJzaW9u

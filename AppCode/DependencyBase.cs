@@ -8,9 +8,9 @@ using Microsoft.Xrm.Sdk.Query;
 
 namespace Futurez.XrmToolBox
 {
-    public interface IChildDependencies 
+    public interface IDependenciesProcessor
     {
-        List<DependencyItem> ProcessDependencies(List<object> itemsList, string entityName, string websiteId);
+        List<DependencyItem> ProcessDependencies(string entityName, string websiteId, List<object> itemsList);
     }
 
     public class DependencyBase
@@ -18,6 +18,8 @@ namespace Futurez.XrmToolBox
         internal IOrganizationService _service;
         internal Utility _utility;
         internal string _baseServerUrl;
+
+        public List<string> EntitiesSearched { get; internal set; } = new List<string>();
 
         public DependencyBase(IOrganizationService service, Utility utility, string baseServerUrl)
         {
@@ -50,7 +52,8 @@ namespace Futurez.XrmToolBox
             // need to set the parent in the fetch
             element.Element("fetch")
                 .Descendants("condition")
-                .Where(c => c.Attribute("attribute").Value == "adx_entityname")
+                .Where(c => c.Attribute("attribute").Value == "adx_entityname" ||
+                            c.Attribute("attribute").Value == "adx_targetentitylogicalname")
                 .FirstOrDefault()
                 .SetAttributeValue("value", entityName);
 
@@ -69,6 +72,12 @@ namespace Futurez.XrmToolBox
             var displayName = element.Attribute("name").Value;
             var primaryfield = element.Attribute("primaryfield").Value;
             var fetch = element.Element("fetch");
+
+            // make sure we are only searchin for the values once!
+            searchValues = searchValues.Distinct().ToList();
+
+            // capture the items being searched 
+            EntitiesSearched.Add(displayName);
 
             var conditionAttrs = new List<string>();
 
@@ -119,7 +128,6 @@ namespace Futurez.XrmToolBox
             // being returned.  one search item may match multople attributes
             foreach (var item in response.Entities)
             {
-                // var re = new Regex($"(^|['\"\s\n\r\t\.]){}(['\"\s\n\r\t\.]|$)");
                 var values = new List<string>();
                 var findResults = new List<FindResult>();
 
@@ -130,7 +138,8 @@ namespace Futurez.XrmToolBox
                         // now check each condition.  if the find is not an exact match, check the regex to see if the correct match exists.  
                         var match = (s == i.Value?.ToString());
                         if (!match) {
-                            var re = new Regex($"(^|[^a-z])*{s}([^a-z]|$)");
+                            var srch = s.Replace("(", @"\(").Replace(")", @"\)").Replace(@"[", @"\[").Replace(@"]", @"\]");
+                            var re = new Regex($"(^|[^a-z])*{srch}([^a-z]|$)");
                             match = re.IsMatch(i.Value?.ToString());
                         }
                         if (match)

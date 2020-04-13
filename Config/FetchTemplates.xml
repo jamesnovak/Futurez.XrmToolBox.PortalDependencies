@@ -71,8 +71,10 @@
         <attribute name="adx_webformstepid" />
         <attribute name="adx_targetentitylogicalname" />
         <attribute name="adx_registerstartupscript" />
+        <attribute name="adx_referenceentityreadonlyformname" />
         <filter type="or" filter="true">
           <condition attribute="adx_targetentitylogicalname" operator="eq" />
+          <condition attribute="adx_referenceentityreadonlyformname" operator="eq" />
           <condition attribute="adx_registerstartupscript" operator="like" />
         </filter>
         <filter type="and">
@@ -118,7 +120,6 @@
       </entity>
     </fetch>
   </query>
-  <!-- CDS Attribute -->
   <query id="attribute_entityform" name="Entity Form" primaryfield="adx_name">
     <fetch>
       <entity name="adx_entityform">
@@ -187,6 +188,67 @@
       </entity>
     </fetch>
   </query>
+
+  <query id="attribute_webformstep" name="Web Form Step" primaryfield="adx_name">
+    <fetch>
+      <entity name="adx_webformstep" >
+        <attribute name="adx_name" />
+        <attribute name="adx_webformstepid" />
+        <attribute name="adx_registerstartupscript" />
+        <attribute name="adx_referencequeryattributelogicalname" />
+        <attribute name="adx_userhostaddressattributelogicalname" />
+        <attribute name="adx_autonumberattributelogicalname" />
+        <attribute name="adx_referencetargetlookupattributelogicalname" />
+        <attribute name="adx_redirecturlquerystringattribute" />
+        <attribute name="adx_targetentityportaluserlookupattribute" />
+        <attribute name="adx_useridentitynameattributelogicalname" />
+        <attribute name="adx_redirecturlquerystringattributeparamname" />
+        <attribute name="adx_primarykeyattributelogicalname" />
+        <attribute name="adx_targetentityprimarykeylogicalname" />
+        <attribute name="adx_geolocation_countyfieldname" />
+        <attribute name="adx_geolocation_cityfieldname" />
+        <attribute name="adx_geolocation_addresslinefieldname" />
+        <attribute name="adx_referenceentityprimarykeylogicalname" />
+        <attribute name="adx_geolocation_statefieldname" />
+        <attribute name="adx_referenceentitylogicalname" />
+        <attribute name="adx_geolocation_longitudefieldname" />
+        <attribute name="adx_referenceentityreadonlyformname" />
+        <attribute name="adx_geolocation_postalcodefieldname" />
+        <attribute name="adx_geolocation_countryfieldname" />
+        <attribute name="adx_geolocation_latitudefieldname" />
+        <filter type="or" filter="true" >
+          <condition attribute="adx_registerstartupscript" operator="like"  />
+          <condition attribute="adx_referencequeryattributelogicalname" operator="eq"  />
+          <condition attribute="adx_userhostaddressattributelogicalname" operator="eq"  />
+          <condition attribute="adx_autonumberattributelogicalname" operator="eq"  />
+          <condition attribute="adx_referencetargetlookupattributelogicalname" operator="eq"  />
+          <condition attribute="adx_redirecturlquerystringattribute" operator="eq"  />
+          <condition attribute="adx_targetentityportaluserlookupattribute" operator="eq"  />
+          <condition attribute="adx_useridentitynameattributelogicalname" operator="eq"  />
+          <condition attribute="adx_redirecturlquerystringattributeparamname" operator="eq"  />
+          <condition attribute="adx_primarykeyattributelogicalname" operator="eq"  />
+          <condition attribute="adx_targetentityprimarykeylogicalname" operator="eq"  />
+          <condition attribute="adx_geolocation_countyfieldname" operator="eq"  />
+          <condition attribute="adx_geolocation_cityfieldname" operator="eq"  />
+          <condition attribute="adx_geolocation_addresslinefieldname" operator="eq"  />
+          <condition attribute="adx_referenceentityprimarykeylogicalname" operator="eq"  />
+          <condition attribute="adx_geolocation_statefieldname" operator="eq"  />
+          <condition attribute="adx_geolocation_longitudefieldname" operator="eq"  />
+          <condition attribute="adx_geolocation_postalcodefieldname" operator="eq"  />
+          <condition attribute="adx_geolocation_countryfieldname" operator="eq"  />
+          <condition attribute="adx_geolocation_latitudefieldname" operator="eq"  />
+        </filter>
+        <filter type="and" >
+          <condition attribute="adx_targetentitylogicalname" operator="eq" />
+        </filter>
+        <link-entity name="adx_webform" from="adx_webformid" to="adx_webform" link-type="inner" alias="form" >
+          <filter type="and" >
+            <condition attribute="adx_websiteid" operator="eq" />
+          </filter>
+        </link-entity>
+      </entity>
+    </fetch>  
+  </query>
   <!-- CDS Forms -->
   <query id="form_entityform" name="Entity Form" primaryfield="adx_name">
     <fetch>
@@ -204,6 +266,33 @@
       </entity>
     </fetch>
   </query>
+  <query id="form_webformstep" name="Web Form Step" primaryfield="adx_name">
+    <fetch>
+      <entity name="adx_webformstep">
+        <attribute name="adx_name" />
+        <attribute name="adx_webformstepid" />
+        <attribute name="adx_formname" />
+        <attribute name="adx_referenceentitylogicalname" />
+        <attribute name="adx_registerstartupscript" />
+        <attribute name="adx_settings" />
+        <filter type="or" filter="true">
+          <condition attribute="adx_formname" operator="eq" />
+          <condition attribute="adx_referenceentitylogicalname" operator="eq" />
+          <condition attribute="adx_registerstartupscript" operator="like" />
+          <condition attribute="adx_settings" operator="like" />
+        </filter>
+        <filter type="and">
+          <condition attribute="adx_targetentitylogicalname" operator="eq" />
+        </filter>
+        <link-entity name="adx_webform" from="adx_webformid" to="adx_webform" link-type="inner" alias="form" >
+          <filter type="and" >
+            <condition attribute="adx_websiteid" operator="eq" />
+          </filter>
+        </link-entity>
+      </entity>
+    </fetch>
+  </query>
+  <!-- CDS View -->
   <query id="view_entitylist" name="Entity View" primaryfield="adx_name">
     <fetch>
       <entity name="adx_entitylist">
@@ -254,6 +343,20 @@
         </filter>
       </entity>
     </fetch>
-
+  </query>
+  <query id="shared_weblinkset" name="Web Link Set" primaryfield="adx_name">
+    <fetch>
+      <entity name="adx_weblinkset" >
+        <attribute name="adx_weblinksetid" />
+        <attribute name="adx_name" />
+        <attribute name="adx_copy" />
+        <filter type="or" filter="true" >
+          <condition attribute="adx_copy" operator="like" value="%about%" />
+        </filter>
+        <filter type="and" >
+          <condition attribute="adx_websiteid" operator="eq" value="f098b549-b479-ea11-a811-000d3a5699dc" />
+        </filter>
+      </entity>
+    </fetch>
   </query>
 </queries>

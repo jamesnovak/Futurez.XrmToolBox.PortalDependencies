@@ -3,20 +3,19 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Forms;
 using System.Drawing;
-
-using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Metadata;
-
-using XrmToolBox.Extensibility;
-using McTools.Xrm.Connection;
-
-using xrmtb.XrmToolBox.Controls;
-using Microsoft.Xrm.Sdk.Query;
-using XrmToolBox.Extensibility.Args;
-using XrmToolBox.Extensibility.Interfaces;
 using System.ServiceModel;
 using System.Linq;
-using System.Resources;
+
+using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Sdk.Metadata;
+
+using McTools.Xrm.Connection;
+using XrmToolBox.Extensibility;
+using XrmToolBox.Extensibility.Args;
+using XrmToolBox.Extensibility.Interfaces;
+
+using xrmtb.XrmToolBox.Controls;
 
 namespace Futurez.XrmToolBox
 {
@@ -57,28 +56,18 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void PortalDependenciesControl_Load(object sender, EventArgs e)
         {
-            if (!SettingsManager.Instance.TryLoad(GetType(), out _settings))
-            {
-                _settings = new Settings();
-                LogInfo("Settings not found => a new settings file has been created!");
-            }
-            else
-            {
-                LogInfo("Settings found and loaded");
-            }
-
-            listViewForms.ListViewColDefs = new ListViewColumnDef[] {
+            ListViewForms.ListViewColDefs = new ListViewColumnDef[] {
                  new ListViewColumnDef("name", 1, "Display Name") { Width = 250 },
                  new ListViewColumnDef("type", 2, "Form Type") { IsGroupColumn = true },
                  new ListViewColumnDef("description", 3, "Description") { Width = 250 }
             };
-            listViewViews.ListViewColDefs = new ListViewColumnDef[] {
+            ListViewViews.ListViewColDefs = new ListViewColumnDef[] {
                  new ListViewColumnDef("name", 1, "Display Name") { Width = 250 },
                  // new ListViewColumnDef("querytype", 2, "Query Type") { IsGroupColumn = true },
                  new ListViewColumnDef("description", 3, "Description") { Width = 250 }
             };
 
-            listViewDependencies.ListViewColDefs = new ListViewColumnDef[] {
+            ListViewDependencies.ListViewColDefs = new ListViewColumnDef[] {
                  new ListViewColumnDef("LogicalName", 1, "Logical Name") { Width = 250 },
                  new ListViewColumnDef("DisplayName", 2, "Display Name") { IsGroupColumn = true },
                  new ListViewColumnDef("RecordPrimaryField", 1, "Record Name") { Width = 250 },
@@ -90,7 +79,7 @@ namespace Futurez.XrmToolBox
             splitContainerMain.Enabled = false;
 
             splitContainerMain.SplitterDistance = ClientSize.Width / 3;
-            listViewDependencies.Height = ClientSize.Height / 2;
+            ListViewDependencies.Height = ClientSize.Height / 2;
         }
 
         /// <summary>
@@ -100,11 +89,7 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void PortalDependenciesControl_Resize(object sender, EventArgs e)
         {
-            if (_settings != null)
-            {
-                _settings.HSplitterPos = splitContainerMain.SplitterDistance;
-                _settings.VSplitterPos = listViewDependencies.Height;
-            }
+            
         }
 
         /// <summary>
@@ -117,11 +102,11 @@ namespace Futurez.XrmToolBox
             // updating connection, so clear out controls
             ClearMainControls();
 
-            solutionsDropdown.UpdateConnection(Service);
-            entitiesDropdown.UpdateConnection(Service);
-            listViewAttributes.UpdateConnection(Service);
-            listViewForms.UpdateConnection(Service);
-            listViewViews.UpdateConnection(Service);
+            SolutionsDropdown.UpdateConnection(Service);
+            EntitiesDropdown.UpdateConnection(Service);
+            ListViewAttributes.UpdateConnection(Service);
+            ListViewForms.UpdateConnection(Service);
+            ListViewViews.UpdateConnection(Service);
 
             if (Service != null)
             {
@@ -135,7 +120,7 @@ namespace Futurez.XrmToolBox
 
             if ((Service != null) && !_showPortalInstallMessage)
             {
-                solutionsDropdown.LoadData();
+                SolutionsDropdown.LoadData();
                 LoadPortalSites();
 
                 var url = ConnectionDetail.WebApplicationUrl;
@@ -166,8 +151,7 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void PortalDependenciesControl_OnCloseTool(object sender, EventArgs e)
         {
-            // Before leaving, save the settings
-            SettingsManager.Instance.Save(GetType(), _settings);
+
         }
         #endregion
         
@@ -209,14 +193,8 @@ namespace Futurez.XrmToolBox
                     {
                         w.ReportProgress(0);
 
-                        var query = new QueryExpression("adx_website")
-                        {
-                            ColumnSet = new ColumnSet(
-                                "adx_parentwebsiteid",
-                                "adx_websiteid",
-                                "adx_name",
-                                "adx_primarydomainname",
-                                "adx_partialurl")
+                        var query = new QueryExpression("adx_website") {
+                            ColumnSet = new ColumnSet( "adx_parentwebsiteid", "adx_websiteid", "adx_name", "adx_primarydomainname", "adx_partialurl")
                         };
 
                         try
@@ -224,15 +202,12 @@ namespace Futurez.XrmToolBox
                             var sites = Service.RetrieveMultiple(query);
                             e.Result = sites;
                         }
-                        catch (FaultException ex)
-                        {
+                        catch (FaultException ex) {
                             e.Result = ex;
                         }
-                        finally
-                        {
+                        finally {
                             w.ReportProgress(100);
                         }
-
                     },
                     ProgressChanged = e =>
                     {
@@ -252,59 +227,44 @@ namespace Futurez.XrmToolBox
                         var sites = e.Result as EntityCollection;
                         var items = new List<ListDisplayItem>();
 
-                        foreach (var ent in sites.Entities)
-                        {
-                            var name = ent["adx_name"].ToString();
-                            var domain = (ent.Attributes.ContainsKey("adx_primarydomainname")) ? 
-                                    ent["adx_primarydomainname"].ToString() : "no domain";
-
-                            items.Add(new ListDisplayItem()
+                        sites.Entities.ToList().ForEach(ent => 
                             {
-                                Name = name,
-                                DisplayName = $"{name} ({domain})",
-                                Description = "",
-                                Object = ent
-                            });
-                        }
+                                var name = ent["adx_name"].ToString();
 
+                                var domain = (ent.Attributes.ContainsKey("adx_primarydomainname")) ?
+                                        ent["adx_primarydomainname"].ToString() :
+                                        "no domain";
+
+                                items.Add(new ListDisplayItem() {
+                                    Name = $"Domain: {domain}",
+                                    DisplayName = name,
+                                    // SummaryName = $"Domain: {domain}",
+                                    Object = ent
+                                });
+                            }
+                        );
                         activeSitesDropdown.LoadData(items);
                     }
                 });
         }
-        /// <summary>
-        /// Clear data from the main controls
-        /// </summary>
-        private void ClearMainControls()
-        {
-            listViewForms.ClearData();
-            listViewViews.ClearData();
-            listViewAttributes.ClearData();
-            entitiesDropdown.ClearData();
-            solutionsDropdown.ClearData();
-            activeSitesDropdown.ClearData();
 
-            listViewDependencies.ClearData();
-            richTextSummary.Text = "";
-
-            ToggleFindButtonsEnabled(false);
-        }
-
+        #region Main Methods 
         /// <summary>
         /// Reload the list of Entities based on the selected Solution
         /// </summary>
-        private void ReloadEntitiesList() 
+        private void ReloadEntitiesList()
         {
-            entitiesDropdown.ClearData();
-            
+            EntitiesDropdown.ClearData();
+
             ReloadEntityRelatedInfo(null);
 
-            var solution = solutionsDropdown?.SelectedSolution;
+            var solution = SolutionsDropdown?.SelectedSolution;
             if (solution != null)
             {
                 // update the entities control selected solution 
-                entitiesDropdown.SolutionFilter = solutionsDropdown?.SelectedSolution.Attributes["uniquename"].ToString();
-                entitiesDropdown.LoadData();
-                entitiesDropdown.Enabled = true;
+                EntitiesDropdown.SolutionFilter = SolutionsDropdown?.SelectedSolution.Attributes["uniquename"].ToString();
+                EntitiesDropdown.LoadData();
+                EntitiesDropdown.Enabled = true;
             }
         }
 
@@ -312,46 +272,92 @@ namespace Futurez.XrmToolBox
         /// Helper method to load the items 
         /// </summary>
         /// <param name="entMeta"></param>
-        private void ReloadEntityRelatedInfo(EntityMetadata entMeta) 
+        private void ReloadEntityRelatedInfo(EntityMetadata entMeta)
         {
-            listViewAttributes.ClearData();
-            listViewViews.ClearData();
-            listViewForms.ClearData();
+            ListViewAttributes.ClearData();
+            ListViewViews.ClearData();
+            ListViewForms.ClearData();
 
-            listViewAttributes.Enabled =
-            listViewForms.Enabled =
-            listViewViews.Enabled = false;
+            ListViewAttributes.Enabled =
+            ListViewForms.Enabled =
+            ListViewViews.Enabled = false;
 
-            listViewAttributes.ParentEntity = entMeta;
-            
+            ListViewAttributes.ParentEntity = entMeta;
+
             if (entMeta != null)
             {
                 // reload the entities for the current Entity
-                listViewAttributes.LoadData();
+                ListViewAttributes.LoadData();
 
                 var otc = entMeta.ObjectTypeCode.Value;
 
                 // reload the related forms and views 
                 var fetchXml = _utility.GetFetchXml("views_for_entity");
                 fetchXml = fetchXml.Replace("{otc}", otc.ToString());
-                listViewViews.LoadData(fetchXml);
+                ListViewViews.LoadData(fetchXml);
 
                 fetchXml = _utility.GetFetchXml("forms_for_entity");
                 fetchXml = fetchXml.Replace("{otc}", otc.ToString());
-                listViewForms.LoadData(fetchXml);
+                ListViewForms.LoadData(fetchXml);
             }
         }
 
         /// <summary>
-        /// Helper method to toggle main controls enabled state
+        /// Shared helper method to process dependencies for Entity child items
         /// </summary>
-        private void DisableMainControls()
+        /// <param name="depends"></param>
+        /// <param name="listItems"></param>
+        private void ProcessDependencies(IDependenciesProcessor processor, List<object> listItems, string loadingMessage)
         {
-            this.splitContainerMain.Enabled = false;
+            RichTextSummary.Text = "";
+            textBoxEntitiesSearched.Text = "";
+
+            ToggleSearchLinksEnabled(false);
+
+            // if no selected entity, bail
+            var ent = EntitiesDropdown?.SelectedEntity;
+            if (ent == null)
+            {
+                return;
+            }
+
+            // Check for the Website ID Filter
+            string siteId = null;
+            if (checkWebsiteFilter.Checked)
+            {
+                var item = activeSitesDropdown.SelectedItem as ListDisplayItem;
+                siteId = ((Entity)item.Object).Id.ToString();
+            }
+
+            // Make the async query call
+            WorkAsync(new WorkAsyncInfo
+            {
+                Message = $"Loading Dependencies - {loadingMessage}",
+                Work = (worker, args) =>
+                {
+                    var list = processor.ProcessDependencies(ent.LogicalName, siteId, listItems);
+
+                    args.Result = list;
+                },
+                PostWorkCallBack = (args) =>
+                {
+                    if (args.Error != null)
+                    {
+                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    var result = args.Result as List<DependencyItem>;
+                    if (result != null)
+                    {
+                        ListViewDependencies.LoadData<DependencyItem>(result);
+                        textBoxEntitiesSearched.Text = $"Portal Configuration Entities Searched: {string.Join(", ", ((DependencyBase)processor).EntitiesSearched.ToArray())}";
+                    }
+                }
+            });
         }
+        #endregion
 
         #region UI Event Handlers
-        
+
         #region Shared Control events
 
         /// <summary>
@@ -371,9 +377,8 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void solutionsDropdown_LoadDataComplete(object sender, EventArgs e)
         {
-            solutionsDropdown.Enabled = true;
-            splitContainerMain.Enabled = (solutionsDropdown.AllSolutions.Count > 0);
-
+            SolutionsDropdown.Enabled = true;
+            splitContainerMain.Enabled = (SolutionsDropdown.AllSolutions.Count > 0);
         }
 
         /// <summary>
@@ -383,7 +388,7 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void entitiesDropdown_SelectedItemChanged(object sender, EventArgs e)
         {
-            ReloadEntityRelatedInfo(entitiesDropdown.SelectedEntity);
+            ReloadEntityRelatedInfo(EntitiesDropdown.SelectedEntity);
         }
 
         /// <summary>
@@ -393,7 +398,7 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void entitiesDropdown_LoadDataComplete(object sender, EventArgs e)
         {
-            entitiesDropdown.Enabled = true;
+            EntitiesDropdown.Enabled = true;
         }
 
         /// <summary>
@@ -403,7 +408,7 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void attributeList_LoadDataComplete(object sender, EventArgs e)
         {
-            listViewAttributes.Enabled = true;
+            ListViewAttributes.Enabled = true;
         }
 
         /// <summary>
@@ -413,166 +418,7 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void attributeList_ItemsChanged(object sender, EventArgs e)
         {
-            ToggleFindButtonsEnabled();
-
-        }
-
-        /// <summary>
-        /// Load Data complete for List View - Views
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void listViewViews_LoadDataComplete(object sender, EventArgs e)
-        {
-            listViewViews.Enabled = true;
-        }
-
-        /// <summary>
-        /// Enable / Disable 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void listViewViews_ItemsChanged(object sender, EventArgs e)
-        {
-            ToggleFindButtonsEnabled();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void buttonFindViews_Click(object sender, EventArgs e)
-        {
-            var views = listViewViews.CheckedEntities.ConvertAll<object>(i => i as object);
-
-            ProcessDependencies(new ViewDependencies(Service, _utility, _baseServerUrl), views);
-
-        }
-        
-        /// <summary>
-        /// Load Data complete for List View - Forms
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void listViewForms_LoadDataComplete(object sender, EventArgs e)
-        {
-            listViewForms.Enabled = true;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void listViewForms_ItemsChanged(object sender, EventArgs e)
-        {
-            ToggleFindButtonsEnabled();
-        }
-
-        #endregion 
-
-        /// <summary>
-        /// Search for the dependencies for the selected entity
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void buttonFindEntities_Click(object sender, EventArgs e)
-        {
-            var selEntity = entitiesDropdown.SelectedEntity;
-            richTextSummary.Text = "";
-
-            string siteId = null;
-            if (checkWebsiteFilter.Checked)
-            {
-                var item = activeSitesDropdown.SelectedItem as ListDisplayItem;
-                siteId = ((Entity)item.Object).Id.ToString();
-            }
-
-            ToggleFindButtonsEnabled(false);
-
-            WorkAsync(new WorkAsyncInfo
-            {
-                Message = "Loading Entity Dependencies",
-                AsyncArgument = selEntity,
-                Work = (worker, args) =>
-                {
-                    var entity = args.Argument as EntityMetadata;
-                    var entDep = new EntityDependencies(Service, _utility, _baseServerUrl);
-                    var list = entDep.LoadDependencies(entity, siteId);
-
-                    args.Result = list;
-                },
-                PostWorkCallBack = (args) =>
-                {
-                    if (args.Error != null)
-                    {
-                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    var result = args.Result as List<DependencyItem>;
-                    if (result != null)
-                    {
-                        listViewDependencies.LoadData<DependencyItem>(result);
-                    }
-                }
-            });
-        }
-
-        /// <summary>
-        /// Shared helper method to process dependencies for Entity items
-        /// </summary>
-        /// <param name="depends"></param>
-        /// <param name="listItems"></param>
-        private void ProcessDependencies(IChildDependencies depends, List<object> listItems)
-        {
-            richTextSummary.Text = "";
-
-            ToggleFindButtonsEnabled(false);
-
-            var ent = entitiesDropdown?.SelectedEntity;
-            if (ent == null) {
-                return;
-            }
-
-            string siteId = null;
-            if (checkWebsiteFilter.Checked) {
-                var item = activeSitesDropdown.SelectedItem as ListDisplayItem;
-                siteId = ((Entity)item.Object).Id.ToString();
-            }
-            WorkAsync(new WorkAsyncInfo
-            {
-                Message = "Loading Dependencies",
-                Work = (worker, args) =>
-                {
-                    var list = depends.ProcessDependencies(listItems, ent.LogicalName, siteId);
-
-                    args.Result = list;
-                },
-                PostWorkCallBack = (args) =>
-                {
-                    if (args.Error != null)
-                    {
-                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    var result = args.Result as List<DependencyItem>;
-                    if (result != null)
-                    {
-                        listViewDependencies.LoadData<DependencyItem>(result);
-                    }
-                }
-            });
-        }
-
-        /// <summary>
-        /// Find the selected Forms
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void buttonFindForms_Click(object sender, EventArgs e)
-        {
-            var forms = listViewForms.CheckedEntities.ConvertAll<object>(i => i as object);
-
-            ProcessDependencies(new FormDependencies(Service, _utility, _baseServerUrl), forms);
+            ToggleSearchLinksEnabled();
         }
 
         /// <summary>
@@ -580,16 +426,99 @@ namespace Futurez.XrmToolBox
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void buttonFindAttribs_Click(object sender, EventArgs e)
+        private void LinkSearchAttributes_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            var attribs = listViewAttributes.CheckedAttributes.ConvertAll<object>(i => i as object);
-
-            ProcessDependencies(new AttributeDependencies(Service, _utility, _baseServerUrl), attribs);
+            var attribs = ListViewAttributes.CheckedAttributes.ConvertAll<object>(i => i as object);
+            ProcessDependencies(new AttributeDependencies(Service, _utility, _baseServerUrl), attribs, "Attributes");
         }
 
+        /// <summary>
+        /// Load Data complete for List View - Views
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ListViewViews_LoadDataComplete(object sender, EventArgs e)
+        {
+            ListViewViews.Enabled = true;
+        }
+
+        /// <summary>
+        /// Enable / Disable 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ListViewViews_ItemsChanged(object sender, EventArgs e)
+        {
+            ToggleSearchLinksEnabled();
+        }
+
+        /// <summary>
+        /// Find records for the selected views
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LinkSearchViews_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var views = ListViewViews.CheckedEntities.ConvertAll<object>(i => i as object);
+            ProcessDependencies(new ViewDependencies(Service, _utility, _baseServerUrl), views, "Views");
+        }
+
+        /// <summary>
+        /// Load Data complete for List View - Forms
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ListViewForms_LoadDataComplete(object sender, EventArgs e)
+        {
+            ListViewForms.Enabled = true;
+        }
+
+        /// <summary>
+        /// Find the selected Forms
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LinkSearchForms_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var forms = ListViewForms.CheckedEntities.ConvertAll<object>(i => i as object);
+            ProcessDependencies(new FormDependencies(Service, _utility, _baseServerUrl), forms, "Forms");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ListViewForms_ItemsChanged(object sender, EventArgs e)
+        {
+            ToggleSearchLinksEnabled();
+        }
+
+        /// <summary>
+        /// Search for the dependencies for the selected entity
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LinkSearchEntitites_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var processor = new EntityDependencies(Service, _utility, _baseServerUrl);
+            ProcessDependencies(processor, null, "Entity");
+        }
+
+        #endregion
+
+        private void toolButtonOpen_Click(object sender, EventArgs e)
+        {
+            OpenRecord(linkOpenRecord.Tag?.ToString());
+        }
+        /// <summary>
+        /// Open the selected record 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void listDependencyItems_DoubleClick(object sender, EventArgs e)
         {
-            var item = listViewDependencies.GetSelectedItem<DependencyItem>();
+            var item = ListViewDependencies.GetSelectedItem<DependencyItem>();
             OpenRecord(item?.EntityReferenceUrl);
         }
 
@@ -600,13 +529,13 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void listDependencyItems_SelectedItemChanged(object sender, EventArgs e)
         {
-            richTextSummary.Text = "";
-            var item = listViewDependencies.GetSelectedItem<DependencyItem>();
+            RichTextSummary.Text = "";
+            var item = ListViewDependencies.GetSelectedItem<DependencyItem>();
             
             if (item == null)
                 return;
 
-            richTextSummary.SuspendLayout();
+            RichTextSummary.SuspendLayout();
             linkOpenRecord.Tag = item.EntityReferenceUrl;
             var search = new List<string>();
             foreach (var f in item.FindResults)
@@ -616,11 +545,11 @@ namespace Futurez.XrmToolBox
             }
 
             var searchItemSummary = $"Searching for: {string.Join(", ", search.ToArray())}";
-            richTextSummary.Text = $"{searchItemSummary}{Environment.NewLine}{Environment.NewLine}{item.DependencySummary}";
+            RichTextSummary.Text = $"{searchItemSummary}{Environment.NewLine}{Environment.NewLine}{item.DependencySummary}";
 
             HighlightSelections(search, searchItemSummary.Length);
 
-            richTextSummary.ResumeLayout();
+            RichTextSummary.ResumeLayout();
         }
 
         /// <summary>
@@ -645,24 +574,47 @@ namespace Futurez.XrmToolBox
         #endregion
 
         #region Helper stuff
+        /// <summary>
+        /// Clear data from the main controls
+        /// </summary>
+        private void ClearMainControls()
+        {
+            ListViewForms.ClearData();
+            ListViewViews.ClearData();
+            ListViewAttributes.ClearData();
+            EntitiesDropdown.ClearData();
+            SolutionsDropdown.ClearData();
+            activeSitesDropdown.ClearData();
 
+            ListViewDependencies.ClearData();
+            RichTextSummary.Text = "";
+
+            ToggleSearchLinksEnabled(false);
+        }
+        /// <summary>
+        /// Helper method to toggle main controls enabled state
+        /// </summary>
+        private void DisableMainControls()
+        {
+            this.splitContainerMain.Enabled = false;
+        }
         /// <summary>
         /// Toggle the main find buttons 
         /// </summary>
         /// <param name="enabled"></param>
-        private void ToggleFindButtonsEnabled(bool? enabled = null)
+        private void ToggleSearchLinksEnabled(bool? enabled = null)
         {
             if (enabled.HasValue) {
-                buttonFindEntities.Enabled = 
-                buttonFindAttribs.Enabled = 
-                buttonFindForms.Enabled = 
-                buttonFindViews.Enabled = enabled.Value;
+                LinkSearchEntitites.Enabled =
+                LinkSearchAttributes.Enabled =
+                LinkSearchForms.Enabled =
+                LinkSearchViews.Enabled = enabled.Value;
             }
             else {
-                buttonFindEntities.Enabled = (entitiesDropdown.SelectedEntity != null);
-                buttonFindAttribs.Enabled = (listViewAttributes.CheckedAttributes?.Count > 0);
-                buttonFindForms.Enabled = (listViewForms.CheckedEntities?.Count > 0);
-                buttonFindViews.Enabled = (listViewViews.CheckedEntities?.Count > 0);
+                LinkSearchEntitites.Enabled = (EntitiesDropdown.SelectedEntity != null);
+                LinkSearchAttributes.Enabled = (ListViewAttributes.CheckedAttributes?.Count > 0);
+                LinkSearchForms.Enabled = (ListViewForms.CheckedEntities?.Count > 0);
+                LinkSearchViews.Enabled = (ListViewViews.CheckedEntities?.Count > 0);
             }
         }
 
@@ -685,9 +637,9 @@ namespace Futurez.XrmToolBox
         private void HighlightSelections(List<string> findItems, int startOffset = 0)
         {
             
-            richTextSummary.SelectionStart = 0;
-            richTextSummary.SelectionLength = startOffset;
-            richTextSummary.SelectionFont = new Font(richTextSummary.Font, FontStyle.Bold);
+            RichTextSummary.SelectionStart = 0;
+            RichTextSummary.SelectionLength = startOffset;
+            RichTextSummary.SelectionFont = new Font(RichTextSummary.Font, FontStyle.Bold);
 
             var counter = 0;
             foreach (var findItem in findItems) 
@@ -696,36 +648,38 @@ namespace Futurez.XrmToolBox
 
                 var highlight = _utility.GetHighlightColor(counter++);
 
-                while (startindex < richTextSummary.TextLength)
+                while (startindex < RichTextSummary.TextLength)
                 {
-                    int wordstartIndex = richTextSummary.Find(findItem, startindex, RichTextBoxFinds.None);
+                    int wordstartIndex = RichTextSummary.Find(findItem, startindex, RichTextBoxFinds.None);
                     if (wordstartIndex != -1)
                     {
-                        richTextSummary.SelectionStart = wordstartIndex;
-                        richTextSummary.SelectionLength = findItem.Length;
-                        richTextSummary.SelectionFont = new Font(richTextSummary.Font, FontStyle.Bold | FontStyle.Italic);
-                        richTextSummary.SelectionColor = highlight.ForeColor;
-                        richTextSummary.SelectionBackColor = highlight.BackColor;
+                        RichTextSummary.SelectionStart = wordstartIndex;
+                        RichTextSummary.SelectionLength = findItem.Length;
+                        RichTextSummary.SelectionFont = new Font(RichTextSummary.Font, FontStyle.Bold | FontStyle.Italic);
+                        RichTextSummary.SelectionColor = highlight.ForeColor;
+                        RichTextSummary.SelectionBackColor = highlight.BackColor;
                     }
                     else
                         break;
                     startindex += wordstartIndex + findItem.Length;
                 }
             }
-            richTextSummary.Select(0, 0);
-            richTextSummary.ScrollToCaret();
+            RichTextSummary.Select(0, 0);
+            RichTextSummary.ScrollToCaret();
+            RichTextSummary.ScrollBars = RichTextBoxScrollBars.ForcedBoth;
         }
 
         private void listDependencyItems_LoadDataComplete(object sender, EventArgs e)
         {
-            ToggleFindButtonsEnabled();
+            ToggleSearchLinksEnabled();
         }
 
         private void listDependencyItems_BeginLoadData(object sender, EventArgs e)
         {
-            ToggleFindButtonsEnabled(false);
+            ToggleSearchLinksEnabled(false);
         }
         #endregion
+
     }
 
     #region Template stuff

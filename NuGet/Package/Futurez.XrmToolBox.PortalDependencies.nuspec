@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>Futurez.XrmToolBox.PortalDependencies</id>
-		<version>1.2020.04.10</version>
+		<version>1.2020.04.13</version>
 		<title>Portal Dependencies Checker</title>
 		<authors>jamesnovak</authors>
 		<owners>jamesnovak</owners>
@@ -11,7 +11,8 @@
 		<license type="expression">MIT</license>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Check for dependencies on CDS objects within your Portal Configuration.</description>
-		<releaseNotes>Initial Release</releaseNotes>
+		<releaseNotes>Initial Release: Check for CDS dependencies in Portal records for Entities, CDS Forms, CDS Views, and Entity Attrinutes
+		</releaseNotes>
 		<copyright>Copyright © Futurez Consulting 2020</copyright>
 		<tags>XrmToolBox Portal Dependencies Checker</tags>
 		<dependencies>

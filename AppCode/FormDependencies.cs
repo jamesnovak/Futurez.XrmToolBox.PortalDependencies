@@ -1,23 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
+
 using Microsoft.Xrm.Sdk;
 
 namespace Futurez.XrmToolBox
 {
-    public class FormDependencies : DependencyBase, IChildDependencies
+    public class FormDependencies : DependencyBase, IDependenciesProcessor
     {
         public FormDependencies(IOrganizationService service, Utility utility, string baseServerUrl) :
             base(service, utility, baseServerUrl) {
         }
 
         /// <summary>
-        /// Load dependencies for the list of selected Forms
+        /// Process the dependencies for the Forms
         /// </summary>
-        /// <param name="forms"></param>
-        /// <returns></returns>
-        public List<DependencyItem> ProcessDependencies(List<object> itemsList, string entityName, string websiteId)
+        /// <param name="entityName">Name of the Entity being searched</param>
+        /// <param name="websiteId">ID of the website being searched</param>
+        /// <param name="itemsList">List of search items </param>
+        /// <returns>List of DependencyItems found in the Portal entities</returns>
+        public List<DependencyItem> ProcessDependencies(string entityName, string websiteId, List<object> itemsList)
         {
             var dependencyItems = new List<DependencyItem>();
             var forms = itemsList.ConvertAll<Entity>(i => i as Entity);
@@ -25,9 +26,10 @@ namespace Futurez.XrmToolBox
             var formNames = forms.Select(a => a.Attributes["name"].ToString()).ToList();
             
             ProcessEntityQuery("form_entityform", entityName, websiteId, formNames, dependencyItems);
-            
-            var element = GetQueryElement("shared_contentsnippet", websiteId);
-            ProcessQuery(element, formNames, dependencyItems);
+
+            formNames.AddRange( forms.Select(a => a.LogicalName).ToList());
+
+            ProcessEntityQuery("form_webformstep", entityName, websiteId, formNames, dependencyItems);
 
             return dependencyItems;
         }

@@ -9,7 +9,7 @@ namespace Futurez.XrmToolBox
     /// <summary>
     /// Hanldes retrieving dependencies for Attributes
     /// </summary>
-    public class AttributeDependencies : DependencyBase, IChildDependencies
+    public class AttributeDependencies : DependencyBase, IDependenciesProcessor
     {
         public AttributeDependencies(IOrganizationService service, Utility utility, string baseServerUrl) :
             base(service, utility, baseServerUrl) {
@@ -18,10 +18,11 @@ namespace Futurez.XrmToolBox
         /// <summary>
         /// Process the dependencies for the Attributes
         /// </summary>
-        /// <param name="itemsList"></param>
-        /// <param name="entityName"></param>
-        /// <returns></returns>
-        public List<DependencyItem> ProcessDependencies(List<object> itemsList, string entityName, string websiteId)
+        /// <param name="entityName">Name of the Entity being searched</param>
+        /// <param name="websiteId">ID of the website being searched</param>
+        /// <param name="itemsList">List of search items </param>
+        /// <returns>List of DependencyItems found in the Portal entities</returns>
+        public List<DependencyItem> ProcessDependencies(string entityName, string websiteId, List<object> itemsList)
         {
             var attributes = itemsList.ConvertAll<AttributeMetadata>(a => a as AttributeMetadata);
             var dependencyItems = new List<DependencyItem>();
@@ -36,10 +37,10 @@ namespace Futurez.XrmToolBox
             ProcessQuery(element, attNames, dependencyItems);
 
             // special query for entity forms and attributes
-            // ProcessEntityFormQuery(attributes, dependencyItems);
             ProcessEntityQuery("attribute_entityform", entName, websiteId, attNames, dependencyItems);
             ProcessEntityQuery("attribute_entitylist", entName, websiteId, attNames, dependencyItems);
-
+            ProcessEntityQuery("attribute_webformstep", entName, websiteId, attNames, dependencyItems);
+            
             return dependencyItems;
         }
     }
