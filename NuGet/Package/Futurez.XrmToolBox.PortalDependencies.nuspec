@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>Futurez.XrmToolBox.PortalDependencies</id>
-		<version>1.2020.04.13</version>
+		<version>1.2020.04.14</version>
 		<title>Portal Dependencies Checker</title>
 		<authors>jamesnovak</authors>
 		<owners>jamesnovak</owners>
