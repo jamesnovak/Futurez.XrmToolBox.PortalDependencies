@@ -100,7 +100,7 @@
             this.toolStripMenu.Location = new System.Drawing.Point(0, 0);
             this.toolStripMenu.Name = "toolStripMenu";
             this.toolStripMenu.Padding = new System.Windows.Forms.Padding(0, 0, 4, 0);
-            this.toolStripMenu.Size = new System.Drawing.Size(1647, 77);
+            this.toolStripMenu.Size = new System.Drawing.Size(1729, 44);
             this.toolStripMenu.TabIndex = 4;
             this.toolStripMenu.Text = "toolStripMain";
             // 
@@ -108,34 +108,34 @@
             // 
             this.tsbClose.Image = ((System.Drawing.Image)(resources.GetObject("tsbClose.Image")));
             this.tsbClose.Name = "tsbClose";
-            this.tsbClose.Size = new System.Drawing.Size(83, 71);
+            this.tsbClose.Size = new System.Drawing.Size(83, 38);
             this.tsbClose.Text = "Close";
             this.tsbClose.Click += new System.EventHandler(this.tsbClose_Click);
             // 
             // tssSeparator1
             // 
             this.tssSeparator1.Name = "tssSeparator1";
-            this.tssSeparator1.Size = new System.Drawing.Size(6, 40);
+            this.tssSeparator1.Size = new System.Drawing.Size(6, 44);
             // 
             // toolButtonOpen
             // 
             this.toolButtonOpen.Image = ((System.Drawing.Image)(resources.GetObject("toolButtonOpen.Image")));
             this.toolButtonOpen.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolButtonOpen.Name = "toolButtonOpen";
-            this.toolButtonOpen.Size = new System.Drawing.Size(166, 34);
+            this.toolButtonOpen.Size = new System.Drawing.Size(154, 38);
             this.toolButtonOpen.Text = "Open Record";
             this.toolButtonOpen.Click += new System.EventHandler(this.toolButtonOpen_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 40);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 44);
             // 
             // splitContainerMain
             // 
             this.splitContainerMain.BackColor = System.Drawing.SystemColors.ControlDark;
             this.splitContainerMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainerMain.Location = new System.Drawing.Point(0, 135);
+            this.splitContainerMain.Location = new System.Drawing.Point(0, 44);
             this.splitContainerMain.Margin = new System.Windows.Forms.Padding(4);
             this.splitContainerMain.Name = "splitContainerMain";
             // 
@@ -160,8 +160,8 @@
             this.splitContainerMain.Panel2.Controls.Add(this.splitterDependencySummary);
             this.splitContainerMain.Panel2.Controls.Add(this.ListViewDependencies);
             this.splitContainerMain.Panel2.Controls.Add(this.panelSummary);
-            this.splitContainerMain.Size = new System.Drawing.Size(1647, 1138);
-            this.splitContainerMain.SplitterDistance = 621;
+            this.splitContainerMain.Size = new System.Drawing.Size(1729, 979);
+            this.splitContainerMain.SplitterDistance = 650;
             this.splitContainerMain.SplitterWidth = 9;
             this.splitContainerMain.TabIndex = 5;
             // 
@@ -184,7 +184,7 @@
             this.ListViewAttributes.ParentEntity = null;
             this.ListViewAttributes.ParentEntityLogicalName = null;
             this.ListViewAttributes.Service = null;
-            this.ListViewAttributes.Size = new System.Drawing.Size(621, 223);
+            this.ListViewAttributes.Size = new System.Drawing.Size(650, 64);
             this.ListViewAttributes.TabIndex = 13;
             this.ListViewAttributes.SelectedItemChanged += new System.EventHandler(this.attributeList_ItemsChanged);
             this.ListViewAttributes.CheckedItemsChanged += new System.EventHandler(this.attributeList_ItemsChanged);
@@ -200,13 +200,13 @@
             this.panelAttributes.Margin = new System.Windows.Forms.Padding(4);
             this.panelAttributes.Name = "panelAttributes";
             this.panelAttributes.Padding = new System.Windows.Forms.Padding(6);
-            this.panelAttributes.Size = new System.Drawing.Size(621, 50);
+            this.panelAttributes.Size = new System.Drawing.Size(650, 50);
             this.panelAttributes.TabIndex = 17;
             // 
             // LinkSearchAttributes
             // 
             this.LinkSearchAttributes.Dock = System.Windows.Forms.DockStyle.Right;
-            this.LinkSearchAttributes.Location = new System.Drawing.Point(522, 6);
+            this.LinkSearchAttributes.Location = new System.Drawing.Point(551, 6);
             this.LinkSearchAttributes.Name = "LinkSearchAttributes";
             this.LinkSearchAttributes.Size = new System.Drawing.Size(93, 38);
             this.LinkSearchAttributes.TabIndex = 9;
@@ -234,7 +234,7 @@
             this.splitterAttribs.Location = new System.Drawing.Point(0, 856);
             this.splitterAttribs.Margin = new System.Windows.Forms.Padding(4);
             this.splitterAttribs.Name = "splitterAttribs";
-            this.splitterAttribs.Size = new System.Drawing.Size(621, 9);
+            this.splitterAttribs.Size = new System.Drawing.Size(650, 9);
             this.splitterAttribs.TabIndex = 15;
             this.splitterAttribs.TabStop = false;
             // 
@@ -256,7 +256,7 @@
             this.ListViewViews.Service = null;
             this.ListViewViews.ShowFriendlyNames = true;
             this.ListViewViews.ShowLocalTimes = true;
-            this.ListViewViews.Size = new System.Drawing.Size(621, 271);
+            this.ListViewViews.Size = new System.Drawing.Size(650, 271);
             this.ListViewViews.TabIndex = 14;
             this.ListViewViews.UseCompatibleStateImageBehavior = false;
             this.ListViewViews.View = System.Windows.Forms.View.Details;
@@ -274,13 +274,13 @@
             this.panelViews.Margin = new System.Windows.Forms.Padding(4);
             this.panelViews.Name = "panelViews";
             this.panelViews.Padding = new System.Windows.Forms.Padding(6);
-            this.panelViews.Size = new System.Drawing.Size(621, 50);
+            this.panelViews.Size = new System.Drawing.Size(650, 50);
             this.panelViews.TabIndex = 19;
             // 
             // LinkSearchViews
             // 
             this.LinkSearchViews.Dock = System.Windows.Forms.DockStyle.Right;
-            this.LinkSearchViews.Location = new System.Drawing.Point(522, 6);
+            this.LinkSearchViews.Location = new System.Drawing.Point(551, 6);
             this.LinkSearchViews.Name = "LinkSearchViews";
             this.LinkSearchViews.Size = new System.Drawing.Size(93, 38);
             this.LinkSearchViews.TabIndex = 9;
@@ -308,7 +308,7 @@
             this.splitterForms.Location = new System.Drawing.Point(0, 526);
             this.splitterForms.Margin = new System.Windows.Forms.Padding(4);
             this.splitterForms.Name = "splitterForms";
-            this.splitterForms.Size = new System.Drawing.Size(621, 9);
+            this.splitterForms.Size = new System.Drawing.Size(650, 9);
             this.splitterForms.TabIndex = 16;
             this.splitterForms.TabStop = false;
             // 
@@ -330,7 +330,7 @@
             this.ListViewForms.Service = null;
             this.ListViewForms.ShowFriendlyNames = true;
             this.ListViewForms.ShowLocalTimes = true;
-            this.ListViewForms.Size = new System.Drawing.Size(621, 290);
+            this.ListViewForms.Size = new System.Drawing.Size(650, 290);
             this.ListViewForms.TabIndex = 11;
             this.ListViewForms.UseCompatibleStateImageBehavior = false;
             this.ListViewForms.View = System.Windows.Forms.View.Details;
@@ -348,13 +348,13 @@
             this.panelForms.Margin = new System.Windows.Forms.Padding(4);
             this.panelForms.Name = "panelForms";
             this.panelForms.Padding = new System.Windows.Forms.Padding(6);
-            this.panelForms.Size = new System.Drawing.Size(621, 50);
+            this.panelForms.Size = new System.Drawing.Size(650, 50);
             this.panelForms.TabIndex = 18;
             // 
             // LinkSearchForms
             // 
             this.LinkSearchForms.Dock = System.Windows.Forms.DockStyle.Right;
-            this.LinkSearchForms.Location = new System.Drawing.Point(522, 6);
+            this.LinkSearchForms.Location = new System.Drawing.Point(551, 6);
             this.LinkSearchForms.Name = "LinkSearchForms";
             this.LinkSearchForms.Size = new System.Drawing.Size(93, 38);
             this.LinkSearchForms.TabIndex = 8;
@@ -385,7 +385,7 @@
             this.EntitiesDropdown.Margin = new System.Windows.Forms.Padding(7, 6, 7, 6);
             this.EntitiesDropdown.Name = "EntitiesDropdown";
             this.EntitiesDropdown.Service = null;
-            this.EntitiesDropdown.Size = new System.Drawing.Size(621, 46);
+            this.EntitiesDropdown.Size = new System.Drawing.Size(650, 46);
             this.EntitiesDropdown.SolutionFilter = null;
             this.EntitiesDropdown.TabIndex = 10;
             this.EntitiesDropdown.SelectedItemChanged += new System.EventHandler(this.entitiesDropdown_SelectedItemChanged);
@@ -401,13 +401,13 @@
             this.panelEntities.Margin = new System.Windows.Forms.Padding(4);
             this.panelEntities.Name = "panelEntities";
             this.panelEntities.Padding = new System.Windows.Forms.Padding(6);
-            this.panelEntities.Size = new System.Drawing.Size(621, 50);
+            this.panelEntities.Size = new System.Drawing.Size(650, 50);
             this.panelEntities.TabIndex = 20;
             // 
             // LinkSearchEntitites
             // 
             this.LinkSearchEntitites.Dock = System.Windows.Forms.DockStyle.Right;
-            this.LinkSearchEntitites.Location = new System.Drawing.Point(522, 6);
+            this.LinkSearchEntitites.Location = new System.Drawing.Point(551, 6);
             this.LinkSearchEntitites.Name = "LinkSearchEntitites";
             this.LinkSearchEntitites.Size = new System.Drawing.Size(93, 38);
             this.LinkSearchEntitites.TabIndex = 9;
@@ -439,7 +439,7 @@
             this.SolutionsDropdown.Name = "SolutionsDropdown";
             this.SolutionsDropdown.PublisherPrefixes = ((System.Collections.Generic.List<string>)(resources.GetObject("SolutionsDropdown.PublisherPrefixes")));
             this.SolutionsDropdown.Service = null;
-            this.SolutionsDropdown.Size = new System.Drawing.Size(621, 46);
+            this.SolutionsDropdown.Size = new System.Drawing.Size(650, 46);
             this.SolutionsDropdown.TabIndex = 12;
             this.SolutionsDropdown.SelectedItemChanged += new System.EventHandler(this.solutionsDropdown_SelectedItemChanged);
             this.SolutionsDropdown.LoadDataComplete += new System.EventHandler(this.solutionsDropdown_LoadDataComplete);
@@ -452,7 +452,7 @@
             this.labelSolutions.Location = new System.Drawing.Point(0, 0);
             this.labelSolutions.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelSolutions.Name = "labelSolutions";
-            this.labelSolutions.Size = new System.Drawing.Size(621, 44);
+            this.labelSolutions.Size = new System.Drawing.Size(650, 44);
             this.labelSolutions.TabIndex = 2;
             this.labelSolutions.Text = "Solutions";
             this.labelSolutions.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -467,7 +467,7 @@
             this.panelDetails.Margin = new System.Windows.Forms.Padding(4);
             this.panelDetails.Name = "panelDetails";
             this.panelDetails.Padding = new System.Windows.Forms.Padding(6);
-            this.panelDetails.Size = new System.Drawing.Size(1017, 471);
+            this.panelDetails.Size = new System.Drawing.Size(1070, 312);
             this.panelDetails.TabIndex = 3;
             // 
             // RichTextSummary
@@ -479,7 +479,7 @@
             this.RichTextSummary.Margin = new System.Windows.Forms.Padding(6);
             this.RichTextSummary.Name = "RichTextSummary";
             this.RichTextSummary.ReadOnly = true;
-            this.RichTextSummary.Size = new System.Drawing.Size(1005, 356);
+            this.RichTextSummary.Size = new System.Drawing.Size(1058, 197);
             this.RichTextSummary.TabIndex = 4;
             this.RichTextSummary.Text = "";
             // 
@@ -491,7 +491,7 @@
             this.panelSummaryInfo.Location = new System.Drawing.Point(6, 6);
             this.panelSummaryInfo.Margin = new System.Windows.Forms.Padding(6);
             this.panelSummaryInfo.Name = "panelSummaryInfo";
-            this.panelSummaryInfo.Size = new System.Drawing.Size(1005, 103);
+            this.panelSummaryInfo.Size = new System.Drawing.Size(1058, 103);
             this.panelSummaryInfo.TabIndex = 3;
             // 
             // tableSearchDetails
@@ -508,12 +508,12 @@
             this.tableSearchDetails.RowCount = 2;
             this.tableSearchDetails.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableSearchDetails.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableSearchDetails.Size = new System.Drawing.Size(1003, 101);
+            this.tableSearchDetails.Size = new System.Drawing.Size(1056, 101);
             this.tableSearchDetails.TabIndex = 5;
             // 
             // linkOpenRecord
             // 
-            this.linkOpenRecord.Location = new System.Drawing.Point(839, 0);
+            this.linkOpenRecord.Location = new System.Drawing.Point(892, 0);
             this.linkOpenRecord.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.linkOpenRecord.Name = "linkOpenRecord";
             this.linkOpenRecord.Size = new System.Drawing.Size(158, 47);
@@ -529,7 +529,7 @@
             this.labelSummary.Location = new System.Drawing.Point(4, 0);
             this.labelSummary.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelSummary.Name = "labelSummary";
-            this.labelSummary.Size = new System.Drawing.Size(825, 47);
+            this.labelSummary.Size = new System.Drawing.Size(878, 47);
             this.labelSummary.TabIndex = 1;
             this.labelSummary.Text = "The search results for the selected item are highlighted below.";
             this.labelSummary.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -543,7 +543,7 @@
             this.textBoxEntitiesSearched.Multiline = true;
             this.textBoxEntitiesSearched.Name = "textBoxEntitiesSearched";
             this.textBoxEntitiesSearched.ReadOnly = true;
-            this.textBoxEntitiesSearched.Size = new System.Drawing.Size(997, 48);
+            this.textBoxEntitiesSearched.Size = new System.Drawing.Size(1050, 48);
             this.textBoxEntitiesSearched.TabIndex = 3;
             // 
             // splitterDependencySummary
@@ -552,7 +552,7 @@
             this.splitterDependencySummary.Location = new System.Drawing.Point(0, 658);
             this.splitterDependencySummary.Margin = new System.Windows.Forms.Padding(4);
             this.splitterDependencySummary.Name = "splitterDependencySummary";
-            this.splitterDependencySummary.Size = new System.Drawing.Size(1017, 9);
+            this.splitterDependencySummary.Size = new System.Drawing.Size(1070, 9);
             this.splitterDependencySummary.TabIndex = 4;
             this.splitterDependencySummary.TabStop = false;
             // 
@@ -572,7 +572,7 @@
             this.ListViewDependencies.MultiSelect = false;
             this.ListViewDependencies.Name = "ListViewDependencies";
             this.ListViewDependencies.Service = null;
-            this.ListViewDependencies.Size = new System.Drawing.Size(1017, 509);
+            this.ListViewDependencies.Size = new System.Drawing.Size(1070, 509);
             this.ListViewDependencies.TabIndex = 1;
             this.ListViewDependencies.UseCompatibleStateImageBehavior = false;
             this.ListViewDependencies.View = System.Windows.Forms.View.Details;
@@ -615,7 +615,7 @@
             this.panelSummary.Margin = new System.Windows.Forms.Padding(4);
             this.panelSummary.Name = "panelSummary";
             this.panelSummary.Padding = new System.Windows.Forms.Padding(18);
-            this.panelSummary.Size = new System.Drawing.Size(1017, 149);
+            this.panelSummary.Size = new System.Drawing.Size(1070, 149);
             this.panelSummary.TabIndex = 2;
             // 
             // panelWebsites
@@ -626,7 +626,7 @@
             this.panelWebsites.Location = new System.Drawing.Point(18, 86);
             this.panelWebsites.Margin = new System.Windows.Forms.Padding(4);
             this.panelWebsites.Name = "panelWebsites";
-            this.panelWebsites.Size = new System.Drawing.Size(979, 43);
+            this.panelWebsites.Size = new System.Drawing.Size(1032, 43);
             this.panelWebsites.TabIndex = 5;
             // 
             // activeSitesDropdown
@@ -659,7 +659,7 @@
             this.labelDetails.Location = new System.Drawing.Point(18, 18);
             this.labelDetails.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.labelDetails.Name = "labelDetails";
-            this.labelDetails.Size = new System.Drawing.Size(979, 68);
+            this.labelDetails.Size = new System.Drawing.Size(1032, 68);
             this.labelDetails.TabIndex = 0;
             this.labelDetails.Text = "View the list of dependencies found below. Select the record to see a summary of " +
     "where the selected value was found. Double click to open the record, or right cl" +
@@ -673,7 +673,7 @@
             this.Controls.Add(this.toolStripMenu);
             this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "PortalDependenciesControl";
-            this.Size = new System.Drawing.Size(941, 727);
+            this.Size = new System.Drawing.Size(1729, 1023);
             this.OnCloseTool += new System.EventHandler(this.PortalDependenciesControl_OnCloseTool);
             this.Load += new System.EventHandler(this.PortalDependenciesControl_Load);
             this.Resize += new System.EventHandler(this.PortalDependenciesControl_Resize);

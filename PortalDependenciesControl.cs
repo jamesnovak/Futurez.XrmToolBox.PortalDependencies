@@ -16,6 +16,7 @@ using XrmToolBox.Extensibility.Args;
 using XrmToolBox.Extensibility.Interfaces;
 
 using xrmtb.XrmToolBox.Controls;
+using System.Threading;
 
 namespace Futurez.XrmToolBox
 {
@@ -28,6 +29,7 @@ namespace Futurez.XrmToolBox
         private Utility _utility;
         private bool _showPortalInstallMessage = true;
         private string _baseServerUrl = null;
+        private Panel _infoPanel = null;
 
         public string RepositoryName => "Futurez.XrmToolBox.PortalDependencies";
 
@@ -120,7 +122,12 @@ namespace Futurez.XrmToolBox
 
             if ((Service != null) && !_showPortalInstallMessage)
             {
+                // show message panel
+                InitializeMessagePanel("Loading Solutions list", 1);
+
+                SolutionsDropdown.Enabled = false;
                 SolutionsDropdown.LoadData();
+                
                 LoadPortalSites();
 
                 var url = ConnectionDetail.WebApplicationUrl;
@@ -139,6 +146,11 @@ namespace Futurez.XrmToolBox
         }
 
         #region Toolbar events
+        /// <summary>
+        /// Handle the Close Tool event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tsbClose_Click(object sender, EventArgs e)
         {
             CloseTool();
@@ -254,6 +266,8 @@ namespace Futurez.XrmToolBox
         /// </summary>
         private void ReloadEntitiesList()
         {
+            InitializeMessagePanel("Loading Entities list", 1);
+
             EntitiesDropdown.ClearData();
 
             ReloadEntityRelatedInfo(null);
@@ -261,10 +275,11 @@ namespace Futurez.XrmToolBox
             var solution = SolutionsDropdown?.SelectedSolution;
             if (solution != null)
             {
+                EntitiesDropdown.Enabled = false;
+
                 // update the entities control selected solution 
                 EntitiesDropdown.SolutionFilter = SolutionsDropdown?.SelectedSolution.Attributes["uniquename"].ToString();
                 EntitiesDropdown.LoadData();
-                EntitiesDropdown.Enabled = true;
             }
         }
 
@@ -286,6 +301,8 @@ namespace Futurez.XrmToolBox
 
             if (entMeta != null)
             {
+                InitializeMessagePanel("Loading Entity related info", 3);
+
                 // reload the entities for the current Entity
                 ListViewAttributes.LoadData();
 
@@ -299,6 +316,40 @@ namespace Futurez.XrmToolBox
                 fetchXml = _utility.GetFetchXml("forms_for_entity");
                 fetchXml = fetchXml.Replace("{otc}", otc.ToString());
                 ListViewForms.LoadData(fetchXml);
+
+            }
+        }
+
+        /// <summary>
+        /// Init a new InformationPanel with message and counter
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="count"></param>
+        private void InitializeMessagePanel(string message, int count) 
+        {
+            _infoPanel = InformationPanel.GetInformationPanel(this, message, 340, 150);
+            _infoPanel.BringToFront();
+            Refresh();
+            _infoPanel.Tag = count;
+        }
+
+        /// <summary>
+        /// Check the counter to see if we can dispose of the InformationPanel
+        /// </summary>
+        private void DisposeMessagePanel()
+        {
+            if (_infoPanel == null)
+                return;
+
+            int count = (int)_infoPanel.Tag;
+            _infoPanel.Tag = --count;
+
+            if (count == 0) {
+                if (Controls.Contains(_infoPanel)) {
+                    Controls.Remove(_infoPanel);
+                    _infoPanel.Dispose();
+                    _infoPanel = null;
+                }
             }
         }
 
@@ -311,7 +362,7 @@ namespace Futurez.XrmToolBox
         {
             RichTextSummary.Text = "";
             textBoxEntitiesSearched.Text = "";
-
+            
             ToggleSearchLinksEnabled(false);
 
             // if no selected entity, bail
@@ -336,7 +387,6 @@ namespace Futurez.XrmToolBox
                 Work = (worker, args) =>
                 {
                     var list = processor.ProcessDependencies(ent.LogicalName, siteId, listItems);
-
                     args.Result = list;
                 },
                 PostWorkCallBack = (args) =>
@@ -367,6 +417,10 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void solutionsDropdown_SelectedItemChanged(object sender, EventArgs e)
         {
+            if (!SolutionsDropdown.Enabled) {
+                return;
+            }
+
             ReloadEntitiesList();
         }
 
@@ -377,8 +431,13 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void solutionsDropdown_LoadDataComplete(object sender, EventArgs e)
         {
+            DisposeMessagePanel();
+
             SolutionsDropdown.Enabled = true;
             splitContainerMain.Enabled = (SolutionsDropdown.AllSolutions.Count > 0);
+
+            ReloadEntitiesList();
+
         }
 
         /// <summary>
@@ -388,17 +447,25 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void entitiesDropdown_SelectedItemChanged(object sender, EventArgs e)
         {
+            if (!EntitiesDropdown.Enabled)
+                return;
+
             ReloadEntityRelatedInfo(EntitiesDropdown.SelectedEntity);
         }
 
         /// <summary>
-        /// Load Data Complete for Entities List
+        /// Load Data Complete for Entities List.  Reenable, dispose of loading message, and load related info
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void entitiesDropdown_LoadDataComplete(object sender, EventArgs e)
         {
             EntitiesDropdown.Enabled = true;
+
+            DisposeMessagePanel();
+
+            ReloadEntityRelatedInfo(EntitiesDropdown.SelectedEntity);
+
         }
 
         /// <summary>
@@ -409,6 +476,7 @@ namespace Futurez.XrmToolBox
         private void attributeList_LoadDataComplete(object sender, EventArgs e)
         {
             ListViewAttributes.Enabled = true;
+            DisposeMessagePanel();
         }
 
         /// <summary>
@@ -440,6 +508,7 @@ namespace Futurez.XrmToolBox
         private void ListViewViews_LoadDataComplete(object sender, EventArgs e)
         {
             ListViewViews.Enabled = true;
+            DisposeMessagePanel();
         }
 
         /// <summary>
@@ -471,6 +540,7 @@ namespace Futurez.XrmToolBox
         private void ListViewForms_LoadDataComplete(object sender, EventArgs e)
         {
             ListViewForms.Enabled = true;
+            DisposeMessagePanel();
         }
 
         /// <summary>
