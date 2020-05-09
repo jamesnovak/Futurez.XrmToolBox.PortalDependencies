@@ -81,7 +81,6 @@ namespace Futurez.XrmToolBox
             var entity = xrmtb.XrmToolBox.Controls.CrmActions.RetrieveEntity(service, "adx_website",true);
 
             return (entity != null);
-
         }
 
         public HighLightColor GetHighlightColor()
@@ -94,7 +93,6 @@ namespace Futurez.XrmToolBox
         {
             return _highlightColors[lastIndex % _highlightColors.Count];
         }
-
     }
 
 }

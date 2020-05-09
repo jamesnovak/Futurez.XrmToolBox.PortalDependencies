@@ -17,13 +17,12 @@ namespace Futurez.XrmToolBox
         /// <param name="websiteId">ID of the website being searched</param>
         /// <param name="itemsList">List of search items </param>
         /// <returns>List of DependencyItems found in the Portal entities</returns>
-        public List<DependencyItem> ProcessDependencies(string entityName, string websiteId = null, List<object> itemsList = null)
+        public List<DependencyItem> ProcessDependencies(string entityName, string websiteId = null, List<object> itemsList = null, bool searchNameOnly = true, string regex = null)
         {
             var dependencyItems = new List<DependencyItem>();
             var searchList = new List<string>() { entityName };
 
-            var element = GetQueryElement("entity_webpage", websiteId);
-
+            var element = GetQueryElement("shared_webpage", websiteId);
             ProcessQuery(element, searchList, dependencyItems);
 
             element = GetQueryElement("entity_entity_form", websiteId);
@@ -42,6 +41,11 @@ namespace Futurez.XrmToolBox
             ProcessQuery(element, searchList, dependencyItems);
 
             return dependencyItems;
+        }
+
+        public List<DependencyItem> ProcessDependencies(string websiteId, List<Entity> itemsList, bool searchNameOnly = true, string regex = null)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

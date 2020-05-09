@@ -16,7 +16,7 @@ using XrmToolBox.Extensibility.Args;
 using XrmToolBox.Extensibility.Interfaces;
 
 using xrmtb.XrmToolBox.Controls;
-using System.Threading;
+using Futurez.XrmToolBox.Properties;
 
 namespace Futurez.XrmToolBox
 {
@@ -25,12 +25,7 @@ namespace Futurez.XrmToolBox
     /// </summary>
     public partial class PortalDependenciesControl : PluginControlBase, IStatusBarMessenger, IGitHubPlugin, IHelpPlugin, IPayPalPlugin
     {
-        private Settings _settings;
-        private Utility _utility;
-        private bool _showPortalInstallMessage = true;
-        private string _baseServerUrl = null;
-        private Panel _infoPanel = null;
-
+        #region Interfaces
         public string RepositoryName => "Futurez.XrmToolBox.PortalDependencies";
 
         public string UserName => "jamesnovak";
@@ -42,6 +37,14 @@ namespace Futurez.XrmToolBox
         public string EmailAccount => "james@jamesnovak.com";
 
         public event EventHandler<StatusBarMessageEventArgs> SendMessageToStatusBar;
+        #endregion
+
+        private Settings _settings;
+        private Utility _utility;
+        private bool _showPortalInstallMessage = true;
+        private string _baseServerUrl = null;
+        private Panel _infoPanel = null;
+        bool _initialResizeDone = false;
 
         public PortalDependenciesControl()
         {
@@ -49,6 +52,7 @@ namespace Futurez.XrmToolBox
 
             _utility = new Utility();
         }
+
 
         #region Toolbox methods and events
         /// <summary>
@@ -58,6 +62,10 @@ namespace Futurez.XrmToolBox
         /// <param name="e"></param>
         private void PortalDependenciesControl_Load(object sender, EventArgs e)
         {
+            // set up the active tab
+            panelCDSControls.Visible = true;
+            panelPortalConfig.Visible = false;
+
             ListViewForms.ListViewColDefs = new ListViewColumnDef[] {
                  new ListViewColumnDef("name", 1, "Display Name") { Width = 250 },
                  new ListViewColumnDef("type", 2, "Form Type") { IsGroupColumn = true },
@@ -76,22 +84,171 @@ namespace Futurez.XrmToolBox
                  new ListViewColumnDef("DependencySummary", 3, "Summary") { Width = 250 }
             };
 
-            UpdatePortalsInstallMessage();
+            // Portal Config apps
+            ListViewWebTemplates.ListViewColDefs = new ListViewColumnDef[] {
+                 new ListViewColumnDef("adx_name", 1, "Name") { Width = 250 },
+                 new ListViewColumnDef("adx_mimetype", 2, "Mime Type") { Width = 100 },
+                 new ListViewColumnDef("adx_websiteid", 3, "Website") { Width = 150, IsGroupColumn = true }
+            };
 
-            splitContainerMain.Enabled = false;
+            ListViewEntityForms.ListViewColDefs = new ListViewColumnDef[] {
+                 new ListViewColumnDef("adx_name", 1, "Name") { Width = 250 },
+                 new ListViewColumnDef("adx_entityname", 2, "Entity Name") { Width = 100 },
+                 new ListViewColumnDef("adx_websiteid", 3, "Website") { Width = 150, IsGroupColumn = true }
+            };
+
+            ListViewSiteSettings.ListViewColDefs = new ListViewColumnDef[] {
+                 new ListViewColumnDef("adx_name", 1, "Name") { Width = 250 },
+                 new ListViewColumnDef("adx_value", 2, "Value") { Width = 100 },
+                 new ListViewColumnDef("adx_websiteid", 3, "Website") { Width = 150, IsGroupColumn = true }
+            };
+
+            ListViewWebForms.ListViewColDefs = new ListViewColumnDef[] {
+                 new ListViewColumnDef("adx_name", 1, "Name") { Width = 250 },
+                 new ListViewColumnDef("adx_startstep", 2, "Start Step") { Width = 100 },
+                 new ListViewColumnDef("adx_websiteid", 3, "Website") { Width = 150, IsGroupColumn = true }
+            };
+
+            ListViewContentSnippets.ListViewColDefs = new ListViewColumnDef[] {
+                 new ListViewColumnDef("adx_name", 1, "Name") { Width = 250 },
+                 new ListViewColumnDef("adx_type", 2, "Type") { Width = 100 },
+                 new ListViewColumnDef("adx_websiteid", 3, "Website") { Width = 150, IsGroupColumn = true }
+            };
+
+            ListViewEntityLists.ListViewColDefs = new ListViewColumnDef[] {
+                 new ListViewColumnDef("adx_name", 1, "Name") { Width = 250 },
+                 new ListViewColumnDef("adx_entityname", 2, "Entity Name") { Width = 100 },
+                 new ListViewColumnDef("adx_websiteid", 3, "Website") { Width = 150, IsGroupColumn = true }
+            };
+
+            ListViewWebLinks.ListViewColDefs = new ListViewColumnDef[] {
+                 new ListViewColumnDef("adx_name", 1, "Name") { Width = 250 },
+                 new ListViewColumnDef("adx_weblinksetid", 2, "WebLink Set") { Width = 100 },
+                 new ListViewColumnDef("site.adx_websiteid", 3, "Website") { Width = 150, IsGroupColumn = true }
+            };
+
+            UpdatePortalsInstallMessage();
 
             splitContainerMain.SplitterDistance = ClientSize.Width / 3;
             ListViewDependencies.Height = ClientSize.Height / 2;
+
+            splitContainerMain.Enabled = false;
         }
 
         /// <summary>
-        /// Save splitter positions
+        /// Load the CDS related controls 
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PortalDependenciesControl_Resize(object sender, EventArgs e)
+        /// <param name="newConnection"></param>
+        private void LoadCDSControls(bool newConnection = true)
         {
-            
+            if (SolutionsDropdown.AllSolutions.Count > 0 && !newConnection)
+                return;
+
+            // show message panel
+            InitializeMessagePanel("Loading Solutions list", 1);
+
+            SolutionsDropdown.Enabled = false;
+            SolutionsDropdown.LoadData();
+
+            var url = ConnectionDetail.WebApplicationUrl;
+            if (string.IsNullOrEmpty(url))
+            {
+                url = string.Concat(ConnectionDetail.ServerName, "/", ConnectionDetail.Organization);
+                if (!url.ToLower().StartsWith("http"))
+                {
+                    url = string.Concat("http://", url);
+                }
+            }
+            _baseServerUrl = url;
+        }
+
+        /// <summary>
+        /// Load the controls that show Portal config related info
+        /// </summary>
+        private void LoadPortalConfigControls(bool newConnection = true)
+        {
+            ResizePortalConfigControls();
+
+            // only reload if we need to
+            if (ListViewWebTemplates.Items.Count > 0 && !newConnection)
+                return;
+
+            ListViewWebTemplates.Enabled = false;
+            ListViewEntityForms.Enabled = false;
+            ListViewContentSnippets.Enabled = false;
+            ListViewWebForms.Enabled = false;
+            ListViewEntityLists.Enabled = false;
+            ListViewWebLinks.Enabled = false;
+            ListViewSiteSettings.Enabled = false;
+
+            InitializeMessagePanel("Loading Portal Configruation Records", 7);
+
+            string selSiteId = GetSelecetedPortal();
+            var fetch = updateFetch(selSiteId, "web_templates");
+            ListViewWebTemplates.LoadData(fetch);
+
+            fetch = updateFetch(selSiteId, "entity_forms");
+            ListViewEntityForms.LoadData(fetch);
+
+            fetch = updateFetch(selSiteId, "web_forms");
+            ListViewWebForms.LoadData(fetch);
+
+            fetch = updateFetch(selSiteId, "site_settings");
+            ListViewSiteSettings.LoadData(fetch);
+
+            fetch = updateFetch(selSiteId, "content_snippet");
+            ListViewContentSnippets.LoadData(fetch);
+
+            fetch = updateFetch(selSiteId, "entity_list");
+            ListViewEntityLists.LoadData(fetch);
+
+            fetch = updateFetch(selSiteId, "web_link");
+            ListViewWebLinks.LoadData(fetch);
+
+            // reload the related forms and views for portal config info
+            string updateFetch(string siteId, string templateName)
+            {
+                var fetchElement = _utility.GetFetchXmlElement(templateName);
+
+                var filter = fetchElement
+                    .Descendants("condition")
+                    .Where(c => c.Attribute("attribute").Value == "adx_websiteid" &&
+                                c.Attribute("value").Value == "{adx_websiteid}")
+                    .FirstOrDefault();
+
+                if (siteId != null)
+                {
+                    filter.SetAttributeValue("value", siteId);
+                }
+                else
+                {
+                    filter.Remove();
+                }
+
+                return fetchElement.ToString();
+            };
+        }
+
+        /// <summary>
+        /// Reload the controls based on the active control
+        /// </summary>
+        /// <param name="newConnection">Flag indicating whether this is a connection update</param>
+        private void ReloadControls(bool newConnection = true)
+        {
+            ListViewDependencies.ClearData();
+            RichTextSummary.Text = "";
+
+            if (panelCDSControls.Visible) {
+                LoadCDSControls(newConnection);
+                ResizeCDSControls();
+            }
+            else {
+                LoadPortalConfigControls(newConnection);
+                ResizePortalConfigControls();
+            }
+
+            SolutionsDropdown.Enabled = panelCDSControls.Visible;
+            EntitiesDropdown.Enabled = panelCDSControls.Visible;
         }
 
         /// <summary>
@@ -104,11 +261,21 @@ namespace Futurez.XrmToolBox
             // updating connection, so clear out controls
             ClearMainControls();
 
-            SolutionsDropdown.UpdateConnection(Service);
-            EntitiesDropdown.UpdateConnection(Service);
-            ListViewAttributes.UpdateConnection(Service);
-            ListViewForms.UpdateConnection(Service);
-            ListViewViews.UpdateConnection(Service);
+            // CDS
+            SolutionsDropdown.UpdateConnection(newService);
+            EntitiesDropdown.UpdateConnection(newService);
+            ListViewAttributes.UpdateConnection(newService);
+            ListViewForms.UpdateConnection(newService);
+            ListViewViews.UpdateConnection(newService);
+
+            // Portal config
+            ListViewWebTemplates.UpdateConnection(newService);
+            ListViewEntityForms.UpdateConnection(newService);
+            ListViewContentSnippets.UpdateConnection(newService);
+            ListViewWebForms.UpdateConnection(newService);
+            ListViewEntityLists.UpdateConnection(newService);
+            ListViewWebLinks.UpdateConnection(newService);
+            ListViewSiteSettings.UpdateConnection(newService);
 
             if (Service != null)
             {
@@ -122,26 +289,8 @@ namespace Futurez.XrmToolBox
 
             if ((Service != null) && !_showPortalInstallMessage)
             {
-                // show message panel
-                InitializeMessagePanel("Loading Solutions list", 1);
-
-                SolutionsDropdown.Enabled = false;
-                SolutionsDropdown.LoadData();
-                
-                LoadPortalSites();
-
-                var url = ConnectionDetail.WebApplicationUrl;
-                if (string.IsNullOrEmpty(url))
-                {
-                    url = string.Concat(ConnectionDetail.ServerName, "/", ConnectionDetail.Organization);
-                    if (!url.ToLower().StartsWith("http"))
-                    {
-                        url = string.Concat("http://", url);
-                    }
-                }
-                _baseServerUrl = url;
-
-                splitContainerMain.Enabled = true;
+                ReloadControls();
+                ReloadPortalSites();
             }
         }
 
@@ -155,44 +304,16 @@ namespace Futurez.XrmToolBox
         {
             CloseTool();
         }
-
-        /// <summary>
-        /// This event occurs when the plugin is closed
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PortalDependenciesControl_OnCloseTool(object sender, EventArgs e)
-        {
-
-        }
         #endregion
-        
-        #endregion
-        /// <summary>
-        /// Show notification to the user that the environment does not have portals installed
-        /// </summary>
-        private void UpdatePortalsInstallMessage() 
-        {   
-            // ShowNotification/HideNotification will show an error message if the control is not fully loaded
-            try
-            {
-                HideNotification();
 
-                if (_showPortalInstallMessage)
-                {
-                    ShowErrorNotification("The current environment does not have Power Apps Portals installed.  Check out the link under Learn More to find out about Power Apps Portals", 
-                        new Uri("https://powerapps.microsoft.com/en-us/portals/"));
-                }
-            }
-            catch (NullReferenceException)
-            {
-            }
-        }
+        #endregion
+
+        #region Main Methods
 
         /// <summary>
         /// Load the list of portal sites to filter 
         /// </summary>
-        private void LoadPortalSites()
+        private void ReloadPortalSites()
         {
             WorkAsync(
                 new WorkAsyncInfo()
@@ -205,8 +326,9 @@ namespace Futurez.XrmToolBox
                     {
                         w.ReportProgress(0);
 
-                        var query = new QueryExpression("adx_website") {
-                            ColumnSet = new ColumnSet( "adx_parentwebsiteid", "adx_websiteid", "adx_name", "adx_primarydomainname", "adx_partialurl")
+                        var query = new QueryExpression("adx_website")
+                        {
+                            ColumnSet = new ColumnSet("adx_parentwebsiteid", "adx_websiteid", "adx_name", "adx_primarydomainname", "adx_partialurl")
                         };
 
                         try
@@ -214,10 +336,12 @@ namespace Futurez.XrmToolBox
                             var sites = Service.RetrieveMultiple(query);
                             e.Result = sites;
                         }
-                        catch (FaultException ex) {
+                        catch (FaultException ex)
+                        {
                             e.Result = ex;
                         }
-                        finally {
+                        finally
+                        {
                             w.ReportProgress(100);
                         }
                     },
@@ -239,35 +363,33 @@ namespace Futurez.XrmToolBox
                         var sites = e.Result as EntityCollection;
                         var items = new List<ListDisplayItem>();
 
-                        sites.Entities.ToList().ForEach(ent => 
+                        sites.Entities.ToList().ForEach(ent =>
+                        {
+                            var name = ent["adx_name"].ToString();
+
+                            var domain = (ent.Attributes.ContainsKey("adx_primarydomainname")) ?
+                                    ent["adx_primarydomainname"].ToString() :
+                                    "no domain";
+
+                            items.Add(new ListDisplayItem()
                             {
-                                var name = ent["adx_name"].ToString();
-
-                                var domain = (ent.Attributes.ContainsKey("adx_primarydomainname")) ?
-                                        ent["adx_primarydomainname"].ToString() :
-                                        "no domain";
-
-                                items.Add(new ListDisplayItem() {
-                                    Name = $"Domain: {domain}",
-                                    DisplayName = name,
-                                    // SummaryName = $"Domain: {domain}",
-                                    Object = ent
-                                });
-                            }
+                                Name = $"Domain: {domain}",
+                                DisplayName = name,
+                                // SummaryName = $"Domain: {domain}",
+                                Object = ent
+                            });
+                        }
                         );
                         activeSitesDropdown.LoadData(items);
                     }
                 });
         }
 
-        #region Main Methods 
         /// <summary>
         /// Reload the list of Entities based on the selected Solution
         /// </summary>
         private void ReloadEntitiesList()
         {
-            InitializeMessagePanel("Loading Entities list", 1);
-
             EntitiesDropdown.ClearData();
 
             ReloadEntityRelatedInfo(null);
@@ -275,6 +397,8 @@ namespace Futurez.XrmToolBox
             var solution = SolutionsDropdown?.SelectedSolution;
             if (solution != null)
             {
+                InitializeMessagePanel("Loading Entities list", 1);
+
                 EntitiesDropdown.Enabled = false;
 
                 // update the entities control selected solution 
@@ -305,7 +429,6 @@ namespace Futurez.XrmToolBox
 
                 // reload the entities for the current Entity
                 ListViewAttributes.LoadData();
-
                 var otc = entMeta.ObjectTypeCode.Value;
 
                 // reload the related forms and views 
@@ -316,7 +439,6 @@ namespace Futurez.XrmToolBox
                 fetchXml = _utility.GetFetchXml("forms_for_entity");
                 fetchXml = fetchXml.Replace("{otc}", otc.ToString());
                 ListViewForms.LoadData(fetchXml);
-
             }
         }
 
@@ -331,6 +453,8 @@ namespace Futurez.XrmToolBox
             _infoPanel.BringToFront();
             Refresh();
             _infoPanel.Tag = count;
+
+            ToggleMainControlsEnabled(false);
         }
 
         /// <summary>
@@ -350,6 +474,7 @@ namespace Futurez.XrmToolBox
                     _infoPanel.Dispose();
                     _infoPanel = null;
                 }
+                ToggleMainControlsEnabled(true);
             }
         }
 
@@ -358,7 +483,47 @@ namespace Futurez.XrmToolBox
         /// </summary>
         /// <param name="depends"></param>
         /// <param name="listItems"></param>
-        private void ProcessDependencies(IDependenciesProcessor processor, List<object> listItems, string loadingMessage)
+        private void ProcessPortalDependencies(IDependenciesProcessor processor, List<Entity> listItems, string loadingMessage, bool searchNameOnly = true)
+        {
+            RichTextSummary.Text = "";
+            textBoxEntitiesSearched.Text = "";
+
+            ToggleSearchLinksEnabled(false);
+
+            // Check for the Website ID Filter
+            string siteId = GetSelecetedPortal();
+
+            // Make the async query call
+            WorkAsync(new WorkAsyncInfo
+            {
+                Message = $"Loading Dependencies - {loadingMessage}",
+                Work = (worker, args) =>
+                {
+                    var list = processor.ProcessDependencies(siteId, listItems, searchNameOnly);
+                    args.Result = list;
+                },
+                PostWorkCallBack = (args) =>
+                {
+                    if (args.Error != null)
+                    {
+                        MessageBox.Show(args.Error.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    var result = args.Result as List<DependencyItem>;
+                    if (result != null)
+                    {
+                        ListViewDependencies.LoadData<DependencyItem>(result);
+                        textBoxEntitiesSearched.Text = $"Portal Configuration Entities Searched: {string.Join(", ", ((DependencyBase)processor).EntitiesSearched.ToArray())}";
+                    }
+                }
+            });
+        }
+
+        /// <summary>
+        /// Shared helper method to process dependencies for Entity child items
+        /// </summary>
+        /// <param name="depends"></param>
+        /// <param name="listItems"></param>
+        private void ProcessCDSDependencies(IDependenciesProcessor processor, List<object> listItems, string loadingMessage)
         {
             RichTextSummary.Text = "";
             textBoxEntitiesSearched.Text = "";
@@ -373,12 +538,7 @@ namespace Futurez.XrmToolBox
             }
 
             // Check for the Website ID Filter
-            string siteId = null;
-            if (checkWebsiteFilter.Checked)
-            {
-                var item = activeSitesDropdown.SelectedItem as ListDisplayItem;
-                siteId = ((Entity)item.Object).Id.ToString();
-            }
+            string siteId = GetSelecetedPortal();
 
             // Make the async query call
             WorkAsync(new WorkAsyncInfo
@@ -404,18 +564,27 @@ namespace Futurez.XrmToolBox
                 }
             });
         }
+
+        /// <summary>
+        /// Method that will search for Portal Config Items
+        /// </summary>
+        /// <param name="control"></param>
+        /// <param name="message"></param>
+        private void SerchPortalConfig(EntitiesCollectionListView control, string message, bool searchNameOnly = true)
+        {
+            var entites = control.CheckedEntities;
+            ProcessPortalDependencies(new PortalConfigDependency(Service, _utility, _baseServerUrl), entites, message, searchNameOnly);
+        }
         #endregion
 
         #region UI Event Handlers
-
         #region Shared Control events
-
         /// <summary>
         /// Selected Solution Changed
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void solutionsDropdown_SelectedItemChanged(object sender, EventArgs e)
+        private void SolutionsDropdown_SelectedItemChanged(object sender, EventArgs e)
         {
             if (!SolutionsDropdown.Enabled) {
                 return;
@@ -429,7 +598,7 @@ namespace Futurez.XrmToolBox
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void solutionsDropdown_LoadDataComplete(object sender, EventArgs e)
+        private void SolutionsDropdown_LoadDataComplete(object sender, EventArgs e)
         {
             DisposeMessagePanel();
 
@@ -437,7 +606,15 @@ namespace Futurez.XrmToolBox
             splitContainerMain.Enabled = (SolutionsDropdown.AllSolutions.Count > 0);
 
             ReloadEntitiesList();
-
+        }
+        /// <summary>
+        /// Handle the reload button click
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SolutionsDropdown_BeginLoadData(object sender, EventArgs e)
+        {
+            SolutionsDropdown.Enabled = false;
         }
 
         /// <summary>
@@ -445,7 +622,7 @@ namespace Futurez.XrmToolBox
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void entitiesDropdown_SelectedItemChanged(object sender, EventArgs e)
+        private void EntitiesDropdown_SelectedItemChanged(object sender, EventArgs e)
         {
             if (!EntitiesDropdown.Enabled)
                 return;
@@ -458,35 +635,22 @@ namespace Futurez.XrmToolBox
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void entitiesDropdown_LoadDataComplete(object sender, EventArgs e)
+        private void EntitiesDropdown_LoadDataComplete(object sender, EventArgs e)
         {
             EntitiesDropdown.Enabled = true;
 
             DisposeMessagePanel();
 
             ReloadEntityRelatedInfo(EntitiesDropdown.SelectedEntity);
-
         }
-
         /// <summary>
-        /// Load Data complete for Attribute List
+        /// The begin load data started, user clicked button 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void attributeList_LoadDataComplete(object sender, EventArgs e)
+        private void EntitiesDropdown_BeginLoadData(object sender, EventArgs e)
         {
-            ListViewAttributes.Enabled = true;
-            DisposeMessagePanel();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void attributeList_ItemsChanged(object sender, EventArgs e)
-        {
-            ToggleSearchLinksEnabled();
+            EntitiesDropdown.Enabled = false;
         }
 
         /// <summary>
@@ -497,28 +661,7 @@ namespace Futurez.XrmToolBox
         private void LinkSearchAttributes_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             var attribs = ListViewAttributes.CheckedAttributes.ConvertAll<object>(i => i as object);
-            ProcessDependencies(new AttributeDependencies(Service, _utility, _baseServerUrl), attribs, "Attributes");
-        }
-
-        /// <summary>
-        /// Load Data complete for List View - Views
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ListViewViews_LoadDataComplete(object sender, EventArgs e)
-        {
-            ListViewViews.Enabled = true;
-            DisposeMessagePanel();
-        }
-
-        /// <summary>
-        /// Enable / Disable 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ListViewViews_ItemsChanged(object sender, EventArgs e)
-        {
-            ToggleSearchLinksEnabled();
+            ProcessCDSDependencies(new AttributeDependencies(Service, _utility, _baseServerUrl), attribs, "Attributes");
         }
 
         /// <summary>
@@ -529,18 +672,7 @@ namespace Futurez.XrmToolBox
         private void LinkSearchViews_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             var views = ListViewViews.CheckedEntities.ConvertAll<object>(i => i as object);
-            ProcessDependencies(new ViewDependencies(Service, _utility, _baseServerUrl), views, "Views");
-        }
-
-        /// <summary>
-        /// Load Data complete for List View - Forms
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ListViewForms_LoadDataComplete(object sender, EventArgs e)
-        {
-            ListViewForms.Enabled = true;
-            DisposeMessagePanel();
+            ProcessCDSDependencies(new ViewDependencies(Service, _utility, _baseServerUrl), views, "Views");
         }
 
         /// <summary>
@@ -551,19 +683,24 @@ namespace Futurez.XrmToolBox
         private void LinkSearchForms_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             var forms = ListViewForms.CheckedEntities.ConvertAll<object>(i => i as object);
-            ProcessDependencies(new FormDependencies(Service, _utility, _baseServerUrl), forms, "Forms");
+            ProcessCDSDependencies(new FormDependencies(Service, _utility, _baseServerUrl), forms, "Forms");
         }
 
+        #region Search Result control events
         /// <summary>
         /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ListViewForms_ItemsChanged(object sender, EventArgs e)
+        private void ListDependencyItems_LoadDataComplete(object sender, EventArgs e)
         {
             ToggleSearchLinksEnabled();
         }
 
+        private void ListDependencyItems_BeginLoadData(object sender, EventArgs e)
+        {
+            ToggleSearchLinksEnabled(false);
+        }
         /// <summary>
         /// Search for the dependencies for the selected entity
         /// </summary>
@@ -572,21 +709,16 @@ namespace Futurez.XrmToolBox
         private void LinkSearchEntitites_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             var processor = new EntityDependencies(Service, _utility, _baseServerUrl);
-            ProcessDependencies(processor, null, "Entity");
+            ProcessCDSDependencies(processor, null, "Entity");
         }
-
         #endregion
 
-        private void toolButtonOpen_Click(object sender, EventArgs e)
-        {
-            OpenRecord(linkOpenRecord.Tag?.ToString());
-        }
         /// <summary>
         /// Open the selected record 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void listDependencyItems_DoubleClick(object sender, EventArgs e)
+        private void ListDependencyItems_DoubleClick(object sender, EventArgs e)
         {
             var item = ListViewDependencies.GetSelectedItem<DependencyItem>();
             OpenRecord(item?.EntityReferenceUrl);
@@ -597,7 +729,7 @@ namespace Futurez.XrmToolBox
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void listDependencyItems_SelectedItemChanged(object sender, EventArgs e)
+        private void ListDependencyItems_SelectedItemChanged(object sender, EventArgs e)
         {
             RichTextSummary.Text = "";
             var item = ListViewDependencies.GetSelectedItem<DependencyItem>();
@@ -621,6 +753,80 @@ namespace Futurez.XrmToolBox
 
             RichTextSummary.ResumeLayout();
         }
+        #endregion
+
+        #region Portal Config Links
+        /// <summary>
+        /// Search for the items based on the link clicked
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LinkSearchWebTemplates_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var entites = ListViewWebTemplates.CheckedEntities;
+            ProcessPortalDependencies(new WebTemplateDependency(Service, _utility, _baseServerUrl), entites, "Web Templates");
+        }
+
+        private void LinkSearchEntityForms_Click(object sender, EventArgs e)
+        {
+            var entites = ListViewEntityForms.CheckedEntities;
+            ProcessPortalDependencies(new EntityFormDependency(Service, _utility, _baseServerUrl), entites, "Entity Forms");
+        }
+
+        private void LinkSearchEntityLists_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var entites = ListViewEntityLists.CheckedEntities;
+            ProcessPortalDependencies(new EntityListDependency(Service, _utility, _baseServerUrl), entites, "Entity Lists");
+        }
+
+        private void LinkSearchContentSnippets_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var entites = ListViewContentSnippets.CheckedEntities;
+            ProcessPortalDependencies(new ContentSnippetsDependency(Service, _utility, _baseServerUrl), entites, "Content Snippets");
+        }
+
+        private void LinkSearchWebLinks_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var entites = ListViewWebLinks.CheckedEntities;
+            ProcessPortalDependencies(new WebLinkSetDependency(Service, _utility, _baseServerUrl), entites, "Web Links", false);
+        }
+
+        private void LinkSearchWebForms_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var entites = ListViewWebForms.CheckedEntities;
+            ProcessPortalDependencies(new WebFormDependency(Service, _utility, _baseServerUrl), entites, "Web Forms", false);
+        }
+
+        private void LinkSearchSettings_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            var entites = ListViewSiteSettings.CheckedEntities;
+            ProcessPortalDependencies(new SiteSettingsDependency(Service, _utility, _baseServerUrl), entites, "Site Settings");
+        }
+        #endregion
+
+        #region Search Item loads and change events
+        /// <summary>
+        /// Common method for handling load data complete and reenabling control
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ListView_LoadDataComplete(object sender, EventArgs e)
+        {
+            ((Control)sender).Enabled = true;
+            DisposeMessagePanel();
+        }
+
+        /// <summary>
+        /// Shared event handler to update links
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ListView_ItemsChanged(object sender, EventArgs e)
+        {
+            ToggleSearchLinksEnabled();
+        }
+
+        #endregion
 
         /// <summary>
         /// Open the record on double click
@@ -641,9 +847,308 @@ namespace Futurez.XrmToolBox
         {
             Clipboard.SetText(linkOpenRecord.Tag?.ToString());
         }
+
+        /// <summary>
+        /// Open the selected link
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolButtonOpen_Click(object sender, EventArgs e)
+        {
+            OpenRecord(linkOpenRecord.Tag?.ToString());
+        }
+
+        /// <summary>
+        /// Toggle the display of the controls for search
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolMenuCDS_Click(object sender, EventArgs e)
+        {
+            toolMenuPortalConfig.Checked = false;
+            SwitchTabs(panelCDSControls, panelPortalConfig);
+        }
+
+        /// <summary>
+        /// Toggle the display of the controls for search
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolMenuPortalConfig_Click(object sender, EventArgs e)
+        {
+            toolMenuCDS.Checked = false;
+            SwitchTabs(panelPortalConfig, panelCDSControls);
+        }
+        #region Collapsible stuff - toggle collapse/expand of the search controls 
+        private void buttonMaxWebTemplates_Click(object sender, EventArgs e)
+        {
+            TogglePortalConfigPanelExpanded(sender as Button, ListViewWebTemplates);
+        }
+
+        private void buttonMaxEntityForms_Click(object sender, EventArgs e)
+        {
+            TogglePortalConfigPanelExpanded(sender as Button, ListViewEntityForms);
+        }
+
+        private void buttonMaxContentSnippet_Click(object sender, EventArgs e)
+        {
+            TogglePortalConfigPanelExpanded(sender as Button, ListViewContentSnippets);
+        }
+
+        private void buttonMaxEntityLists_Click(object sender, EventArgs e)
+        {
+            TogglePortalConfigPanelExpanded(sender as Button, ListViewEntityLists);
+        }
+
+        private void buttonMaxWebLinks_Click(object sender, EventArgs e)
+        {
+            TogglePortalConfigPanelExpanded(sender as Button, ListViewWebLinks);
+        }
+
+        private void buttonMaxWebForms_Click(object sender, EventArgs e)
+        {
+            TogglePortalConfigPanelExpanded(sender as Button, ListViewWebForms);
+        }
+
+        private void buttonMaxSiteSettings_Click(object sender, EventArgs e)
+        {
+            TogglePortalConfigPanelExpanded(sender as Button, ListViewSiteSettings);
+        }
+
+        /// <summary>
+        /// Helper method for toggling the panel expanded for Portal Config Controls
+        /// </summary>
+        /// <param name="button"></param>
+        /// <param name="control"></param>
+        private void TogglePortalConfigPanelExpanded(Button button = null, EntitiesCollectionListView control = null) 
+        {
+            var tag = button?.Tag;
+
+            // reset button text and tags
+            new List<Button>() { 
+                buttonMaxContentSnippets,
+                buttonMaxEntityForms,
+                buttonMaxEntityLists,
+                buttonMaxSiteSettings,
+                buttonMaxWebForms,
+                buttonMaxWebLinks,
+                buttonMaxWebTemplates}
+            .ForEach(b => {
+                    b.Text = "u";
+                    b.Tag = false;
+                });
+
+            if (control == null)
+                return;
+
+            var expanded = (tag != null) ? bool.Parse(tag.ToString()) : false;
+            if (!expanded)
+            {
+                int count = 7;
+                var delta = panelHeaderContentSnippet.Height * count + splitterWebTemplates.Height * count;
+                var height = splitContainerMain.Panel1.ClientSize.Height - delta;
+
+                control.Height = height;
+                var controls = new List<EntitiesCollectionListView>() {
+                    ListViewWebTemplates,
+                    ListViewEntityForms,
+                    ListViewContentSnippets,
+                    ListViewEntityLists,
+                    ListViewWebForms,
+                    ListViewWebLinks,
+                    ListViewSiteSettings
+                };
+                controls.ForEach(lv => {
+                    lv.Visible = (lv.Name == control.Name);
+                });
+            }
+            else {
+                ResizePortalConfigControls();
+            }
+
+            button.Text = (expanded) ? "u": "q";
+            button.Tag = !expanded;
+        }
+
+        private void buttonMaxForms_Click(object sender, EventArgs e)
+        {
+            ToggleCDSPanelExpanded(sender as Button, ListViewForms);
+        }
+
+        private void buttonMaxViews_Click(object sender, EventArgs e)
+        {
+            ToggleCDSPanelExpanded(sender as Button, ListViewViews);
+        }
+
+        private void buttonMaxAttributes_Click(object sender, EventArgs e)
+        {
+            ToggleCDSPanelExpanded(sender as Button, ListViewAttributes);
+        }
+
+        private void ToggleCDSPanelExpanded(Button button = null, Control control = null)
+        {
+            // grab tag before reset
+            var tag = button?.Tag;
+
+            // reset button text and tags
+            new List<Button>() {
+                buttonMaxForms,
+                buttonMaxViews,
+                buttonMaxAttributes}
+            .ForEach(b => {
+                b.Text = "u";
+                b.Tag = false;
+            });
+
+            if (control == null)
+                return;
+
+            var expanded = (tag != null) ? bool.Parse(tag.ToString()) : false;
+            if (!expanded)
+            {
+                var delta = panelHeaderForms.Bottom + panelHeaderViews.Height + panelHeaderAttributes.Height + splitterForms.Height * 3;
+                var height = splitContainerMain.Panel1.ClientSize.Height - delta;
+
+                control.Height = height;
+
+                new List<Control>() {
+                ListViewForms,
+                ListViewViews,
+                ListViewAttributes
+            }
+                .ForEach(lv => {
+                    lv.Visible = (lv.Name == control.Name);
+                });
+            }
+            else
+            {
+                ResizeCDSControls();
+            }
+            button.Text = (expanded) ? "u" : "q";
+            button.Tag = !expanded;
+        }
+        #endregion
         #endregion
 
         #region Helper stuff
+        /// <summary>
+        /// Adjust sizing of the Portal Config Controls
+        /// </summary>
+        private void ResizePortalConfigControls()
+        {
+            splitContainerMain.Panel1.SuspendLayout();
+
+            // set heights based on available space in 
+            int count = 7;
+            var delta = panelHeaderContentSnippet.Height * count + splitterWebTemplates.Height * count;
+            var height = (splitContainerMain.Panel1.ClientSize.Height - delta) / count;
+
+            var controls = new List<EntitiesCollectionListView>() {
+                ListViewWebTemplates,
+                ListViewEntityForms,
+                ListViewContentSnippets,
+                ListViewEntityLists,
+                ListViewWebForms,
+                ListViewWebLinks,
+                ListViewSiteSettings
+            };
+            controls.ForEach(lv => {
+                lv.SuspendLayout();
+            });
+
+            controls.ForEach(lv => {
+                lv.Visible = true;
+                lv.Height = height;
+            });
+            controls.ForEach(lv => {
+                lv.ResumeLayout();
+            });
+
+            // make sure we reset the buttons
+            TogglePortalConfigPanelExpanded();
+
+            splitContainerMain.Panel1.ResumeLayout();
+        }
+
+        /// <summary>
+        /// Even out the height of the CDS controls.
+        /// </summary>
+        private void ResizeCDSControls()
+        {
+            splitContainerMain.Panel1.SuspendLayout();
+
+            // determine height minus the offset 
+            var delta = panelHeaderEntities.Height * 7 + splitterForms.Height * 3;
+            var height = (splitContainerMain.Panel1.ClientSize.Height - delta) / 3;
+
+            ListViewForms.Height = 
+            ListViewViews.Height = 2 * height/3;
+
+            ListViewForms.Visible =
+            ListViewViews.Visible =
+            ListViewAttributes.Visible = true;
+            
+            // make sure we reset the buttons
+            ToggleCDSPanelExpanded();
+            splitContainerMain.Panel1.ResumeLayout();
+        }
+
+        /// <summary>
+        /// Show notification to the user that the environment does not have portals installed
+        /// </summary>
+        private void UpdatePortalsInstallMessage()
+        {
+            // ShowNotification/HideNotification will show a5n error message if the control is not fully loaded
+            try
+            {
+                HideNotification();
+
+                if (_showPortalInstallMessage)
+                {
+                    ShowErrorNotification("The current environment does not have Power Apps Portals installed.  Check out the link under Learn More to find out about Power Apps Portals",
+                        new Uri("https://powerapps.microsoft.com/en-us/portals/"));
+                }
+            }
+            catch (NullReferenceException)
+            {
+            }
+        }
+
+        /// <summary>
+        /// Get the selected Website ID if we are supposed to fiter by it
+        /// </summary>
+        /// <returns></returns>
+        private string GetSelecetedPortal()
+        {
+            string siteId = null;
+            if (checkWebsiteFilter.Checked)
+            {
+                var item = activeSitesDropdown.SelectedItem as ListDisplayItem;
+                siteId = ((Entity)item.Object).Id.ToString();
+            }
+            return siteId;
+        }
+
+        /// <summary>
+        /// Helper to activate the correct panel and update selected buttons 
+        /// </summary>
+        /// <param name="panelFront"></param>
+        /// <param name="panelBack"></param>
+        /// <param name="activeButton"></param>
+        /// <param name="inActiveButton"></param>
+        private void SwitchTabs(Panel panelFront, Panel panelBack)
+        {
+            panelFront.BringToFront();
+            panelFront.Visible = true;
+
+            panelBack.SendToBack();
+            panelBack.Visible = false;
+
+            ReloadControls(false);
+
+            UpdateStatusPanel();
+        }
+
         /// <summary>
         /// Clear data from the main controls
         /// </summary>
@@ -656,18 +1161,36 @@ namespace Futurez.XrmToolBox
             SolutionsDropdown.ClearData();
             activeSitesDropdown.ClearData();
 
+            ListViewWebTemplates.ClearData();
+            ListViewEntityForms.ClearData();
+            ListViewContentSnippets.ClearData();
+            ListViewWebForms.ClearData();
+            ListViewEntityLists.ClearData();
+            ListViewWebLinks.ClearData();
+            ListViewSiteSettings.ClearData();
+
             ListViewDependencies.ClearData();
             RichTextSummary.Text = "";
 
             ToggleSearchLinksEnabled(false);
         }
+
         /// <summary>
         /// Helper method to toggle main controls enabled state
         /// </summary>
-        private void DisableMainControls()
+        private void ToggleMainControlsEnabled(bool enabled)
         {
-            this.splitContainerMain.Enabled = false;
+            splitContainerMain.Enabled = enabled;
+            toolStripMenu.Enabled = enabled;
+
+            UpdateStatusPanel();
         }
+
+        private void UpdateStatusPanel()
+        {
+            toolLabelMessage.Text = (panelCDSControls.Visible) ? Resources.CDS_Message : Resources.Config_Message;
+        }
+
         /// <summary>
         /// Toggle the main find buttons 
         /// </summary>
@@ -678,13 +1201,29 @@ namespace Futurez.XrmToolBox
                 LinkSearchEntitites.Enabled =
                 LinkSearchAttributes.Enabled =
                 LinkSearchForms.Enabled =
-                LinkSearchViews.Enabled = enabled.Value;
+                LinkSearchViews.Enabled =
+
+                LinkSearchWebTemplates.Enabled = 
+                LinkSearchWebForms.Enabled =
+                LinkSearchContentSnippets.Enabled =
+                LinkSearchEntityForms.Enabled =
+                LinkSearchEntityLists.Enabled =
+                LinkSearchSettings.Enabled =
+                LinkSearchWebLinks.Enabled = enabled.Value;
             }
             else {
                 LinkSearchEntitites.Enabled = (EntitiesDropdown.SelectedEntity != null);
                 LinkSearchAttributes.Enabled = (ListViewAttributes.CheckedAttributes?.Count > 0);
                 LinkSearchForms.Enabled = (ListViewForms.CheckedEntities?.Count > 0);
                 LinkSearchViews.Enabled = (ListViewViews.CheckedEntities?.Count > 0);
+
+                LinkSearchWebTemplates.Enabled = (ListViewWebTemplates.CheckedEntities?.Count > 0);
+                LinkSearchWebForms.Enabled = (ListViewWebForms.CheckedEntities?.Count > 0);
+                LinkSearchContentSnippets.Enabled = (ListViewContentSnippets.CheckedEntities?.Count > 0);
+                LinkSearchEntityForms.Enabled = (ListViewEntityForms.CheckedEntities?.Count > 0);
+                LinkSearchEntityLists.Enabled = (ListViewEntityLists.CheckedEntities?.Count > 0);
+                LinkSearchSettings.Enabled = (ListViewSiteSettings.CheckedEntities?.Count > 0);
+                LinkSearchWebLinks.Enabled = (ListViewWebLinks.CheckedEntities?.Count > 0);
             }
         }
 
@@ -720,7 +1259,7 @@ namespace Futurez.XrmToolBox
 
                 while (startindex < RichTextSummary.TextLength)
                 {
-                    int wordstartIndex = RichTextSummary.Find(findItem, startindex, RichTextBoxFinds.None);
+                    int wordstartIndex = RichTextSummary.Find(findItem, startindex, RichTextBoxFinds.MatchCase);
                     if (wordstartIndex != -1)
                     {
                         RichTextSummary.SelectionStart = wordstartIndex;
@@ -738,18 +1277,18 @@ namespace Futurez.XrmToolBox
             RichTextSummary.ScrollToCaret();
             RichTextSummary.ScrollBars = RichTextBoxScrollBars.ForcedBoth;
         }
-
-        private void listDependencyItems_LoadDataComplete(object sender, EventArgs e)
-        {
-            ToggleSearchLinksEnabled();
-        }
-
-        private void listDependencyItems_BeginLoadData(object sender, EventArgs e)
-        {
-            ToggleSearchLinksEnabled(false);
-        }
         #endregion
 
+        private void activeSitesDropdown_LoadDataComplete(object sender, EventArgs e)
+        {
+            if (_initialResizeDone)
+                return;
+
+            splitContainerMain.SplitterDistance = ClientSize.Width / 3;
+            ListViewDependencies.Height = splitContainerMain.Panel2.ClientSize.Height / 3;
+
+            _initialResizeDone = true;
+        }
     }
 
     #region Template stuff

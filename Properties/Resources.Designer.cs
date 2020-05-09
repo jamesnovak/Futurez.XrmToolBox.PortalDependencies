@@ -59,5 +59,23 @@ namespace Futurez.XrmToolBox.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Searching for references to CDS objects within Portal record fields and Liquid content..
+        /// </summary>
+        internal static string CDS_Message {
+            get {
+                return ResourceManager.GetString("CDS_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Searching for references to Portal objects within Portal records Liquid content..
+        /// </summary>
+        internal static string Config_Message {
+            get {
+                return ResourceManager.GetString("Config_Message", resourceCulture);
+            }
+        }
     }
 }

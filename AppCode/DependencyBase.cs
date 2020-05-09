@@ -10,11 +10,15 @@ namespace Futurez.XrmToolBox
 {
     public interface IDependenciesProcessor
     {
-        List<DependencyItem> ProcessDependencies(string entityName, string websiteId, List<object> itemsList);
+        List<DependencyItem> ProcessDependencies(string entityName, string websiteId, List<object> itemsList, bool searchNameOnly = true, string regex = null);
+        List<DependencyItem> ProcessDependencies(string websiteId, List<Entity> itemsList, bool searchNameOnly = true, string regex = null);
     }
 
     public class DependencyBase
     {
+        internal const string SRCH_SLUG = "{_search_value_}";
+        internal const string LIQUID_CDS_TAG = "{_cds_tag_}";
+
         internal IOrganizationService _service;
         internal Utility _utility;
         internal string _baseServerUrl;
@@ -27,16 +31,20 @@ namespace Futurez.XrmToolBox
             _utility = utility;
             _baseServerUrl = baseServerUrl;
         }
-        internal void ProcessQuery(string queryName, string searchValue, List<DependencyItem> dependencyItems)
-        {
-            ProcessQuery(queryName, new List<string>() { searchValue }, dependencyItems);
-        }
 
-        internal void ProcessQuery(string queryName, List<string> searchValues, List<DependencyItem> dependencyItems)
+        /// <summary>
+        /// Helper method that retreieves the element 
+        /// </summary>
+        /// <param name="queryName"></param>
+        /// <param name="websiteId"></param>
+        /// <param name="searchValues"></param>
+        /// <param name="dependencyItems"></param>
+        /// <param name="regex"></param>
+        internal void ProcessQuery(string queryName, string websiteId, List<string> searchValues, List<DependencyItem> dependencyItems, string regex = null)
         {
-            var element = new XElement(_utility.GetFetchXmlElement(queryName).Parent);
+            var element = GetQueryElement(queryName, websiteId);
 
-            ProcessQuery(element, searchValues, dependencyItems);
+            ProcessQuery(element, searchValues, dependencyItems, regex);
         }
 
         /// <summary>
@@ -45,7 +53,7 @@ namespace Futurez.XrmToolBox
         /// <param name="queryName"></param>
         /// <param name="searchValues"></param>
         /// <param name="dependencyItems"></param>
-        internal void ProcessEntityQuery(string queryName, string entityName, string websiteId, List<string> searchValues, List<DependencyItem> dependencyItems)
+        internal void ProcessEntityQuery(string queryName, string entityName, string websiteId, List<string> searchValues, List<DependencyItem> dependencyItems, string regex = null)
         {
             var element = GetQueryElement(queryName, websiteId);
 
@@ -58,20 +66,25 @@ namespace Futurez.XrmToolBox
                 .SetAttributeValue("value", entityName);
 
             // now handle the standard processing 
-            ProcessQuery(element, searchValues, dependencyItems);
+            ProcessQuery(element, searchValues, dependencyItems, regex);
         }
 
         /// <summary>
         /// Process the query for the list of search values
         /// </summary>
-        /// <param name="queryName"></param>
+        /// <param name="element"></param>
         /// <param name="searchValues"></param>
         /// <param name="dependencyItems"></param>
-        internal void ProcessQuery(XElement element, List<string> searchValues, List<DependencyItem> dependencyItems)
+        /// <param name="regex">optional regex for further filtering</param>
+        internal void ProcessQuery(XElement element, List<string> searchValues, List<DependencyItem> dependencyItems, string regex = null)
         {
             var displayName = element.Attribute("name").Value;
             var primaryfield = element.Attribute("primaryfield").Value;
             var fetch = element.Element("fetch");
+
+            if (regex == null) {
+                regex = $"(^|[^a-z])*{SRCH_SLUG}([^a-z]|$)";
+            }
 
             // make sure we are only searchin for the values once!
             searchValues = searchValues.Distinct().ToList();
@@ -138,8 +151,14 @@ namespace Futurez.XrmToolBox
                         // now check each condition.  if the find is not an exact match, check the regex to see if the correct match exists.  
                         var match = (s == i.Value?.ToString());
                         if (!match) {
-                            var srch = s.Replace("(", @"\(").Replace(")", @"\)").Replace(@"[", @"\[").Replace(@"]", @"\]");
-                            var re = new Regex($"(^|[^a-z])*{srch}([^a-z]|$)");
+                            var srch = s.Replace("(", @"\(")
+                                        .Replace(")", @"\)")
+                                        .Replace(@"[", @"\[")
+                                        .Replace(@"]", @"\]")
+                                        .Replace(@"/", @"\/");
+                            var reg = regex.Replace(SRCH_SLUG, srch);
+                            var re = new Regex(reg);
+
                             match = re.IsMatch(i.Value?.ToString());
                         }
                         if (match)
@@ -200,6 +219,42 @@ namespace Futurez.XrmToolBox
                 }
             }
             return element;
+        }
+
+        /// <summary>
+        /// Apply some additional filters using regex
+        /// </summary>
+        /// <param name="re"></param>
+        /// <param name="dependencyItems"></param>
+        internal void AdditionalRegExFilter(string regex, List<DependencyItem> dependencyItems) 
+        {
+            for (var i = dependencyItems.Count - 1; i >= 0; i--)
+            {
+                var include = false;
+                var dep = dependencyItems[i];
+
+                foreach (var res in dep.FindResults)
+                {
+
+                    foreach (var srch in res.SearchValues)
+                    {
+
+                        var reg = regex.Replace("{search_value}", srch);
+                        var re = new Regex(regex);
+
+                        if (re.IsMatch(res.AttributeValue))
+                        {
+                            include = true;
+                            break;
+                        }
+
+                    }
+                }
+                if (!include)
+                {
+                    dependencyItems.Remove(dep);
+                }
+            }
         }
     }
 }

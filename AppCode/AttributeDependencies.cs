@@ -22,7 +22,7 @@ namespace Futurez.XrmToolBox
         /// <param name="websiteId">ID of the website being searched</param>
         /// <param name="itemsList">List of search items </param>
         /// <returns>List of DependencyItems found in the Portal entities</returns>
-        public List<DependencyItem> ProcessDependencies(string entityName, string websiteId, List<object> itemsList)
+        public List<DependencyItem> ProcessDependencies(string entityName, string websiteId, List<object> itemsList, bool searchNameOnly = true, string regex = null)
         {
             var attributes = itemsList.ConvertAll<AttributeMetadata>(a => a as AttributeMetadata);
             var dependencyItems = new List<DependencyItem>();
@@ -42,6 +42,11 @@ namespace Futurez.XrmToolBox
             ProcessEntityQuery("attribute_webformstep", entName, websiteId, attNames, dependencyItems);
             
             return dependencyItems;
+        }
+
+        public List<DependencyItem> ProcessDependencies(string websiteId, List<Entity> itemsList, bool searchNameOnly = true, string regex = null)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

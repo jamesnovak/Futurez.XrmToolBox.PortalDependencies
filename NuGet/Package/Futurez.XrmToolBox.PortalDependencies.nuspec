@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
 	<metadata>
 		<id>Futurez.XrmToolBox.PortalDependencies</id>
-		<version>1.2020.04.14</version>
+		<version>1.2020.5.9</version>
 		<title>Portal Dependencies Checker</title>
 		<authors>jamesnovak</authors>
 		<owners>jamesnovak</owners>
@@ -11,8 +11,12 @@
 		<icon>images\futurez.png</icon>
 		<license type="expression">MIT</license>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<description>Check for dependencies on CDS objects within your Portal Configuration.</description>
-		<releaseNotes>Initial Release: Check for CDS dependencies in Portal records for Entities, CDS Forms, CDS Views, and Entity Attrinutes
+		<description>Check for dependencies on CDS objects and Liquid objects within your Portal Configuration.</description>
+		<releaseNotes>Feature Update: 
+		Adding support for searching various Portal Configuration items: Web Templates, Entity Forms, Content Snippets, etc
+		UI Cleanup - added ability to expand/collapse lists of search items
+		Added search for Views in referenced as Entity Views in Web Templates and other Liquid content
+		Additional filtering using regex, reducing noise on results
 		</releaseNotes>
 		<copyright>Copyright © Futurez Consulting 2020</copyright>
 		<tags>XrmToolBox Power Apps Portal Dependencies Viewer</tags>

@@ -15,6 +15,7 @@
       </entity>
     </fetch>
   </query>
+  
   <query id="views_for_entity">
     <fetch>
       <entity name="savedquery">
@@ -28,17 +29,139 @@
       </entity>
     </fetch>
   </query>
+  
+  <query id="web_templates">
+    <fetch version="1.0" mapping="logical" >
+      <entity name="adx_webtemplate" >
+        <attribute name="adx_name" />
+        <attribute name="adx_websiteid" />
+        <attribute name="adx_webtemplateid" />
+        <attribute name="adx_mimetype" />
+        <order attribute="adx_name" descending="false" />
+        <filter type="and" >
+          <condition attribute="statecode" operator="eq" value="0" />
+          <condition attribute="adx_websiteid" operator="eq" value="{adx_websiteid}" />
+        </filter>
+      </entity>
+    </fetch>
+  </query>
+
+  <query id="entity_forms">
+    <fetch version="1.0" mapping="logical" >
+      <entity name="adx_entityform" >
+        <attribute name="adx_name" />
+        <attribute name="adx_entityname" />
+        <attribute name="adx_entityformid" />
+        <attribute name="adx_websiteid" />
+        <order attribute="adx_name" descending="false" />
+        <filter type="and" >
+          <condition attribute="statecode" operator="eq" value="0" />
+          <condition attribute="adx_websiteid" operator="eq" value="{adx_websiteid}" />
+        </filter>
+      </entity>
+    </fetch>
+  </query>
+
+  <query id="web_forms">
+    <fetch version="1.0" mapping="logical" >
+      <entity name="adx_webform" >
+        <attribute name="adx_name" />
+        <attribute name="adx_webformid" />
+        <attribute name="adx_startstep" />
+        <attribute name="adx_websiteid" />
+        <order attribute="adx_name" descending="false" />
+        <filter type="and" >
+          <condition attribute="statecode" operator="eq" value="0" />
+          <condition attribute="adx_websiteid" operator="eq" value="{adx_websiteid}" />
+        </filter>
+      </entity>
+    </fetch>
+  </query>
+
+  <query id="site_settings">
+    <fetch version="1.0" mapping="logical" >
+      <entity name="adx_sitesetting" >
+        <attribute name="adx_name" />
+        <attribute name="adx_value" />
+        <attribute name="adx_websiteid" />
+        <attribute name="adx_sitesettingid" />
+        <order attribute="adx_name" descending="false" />
+        <filter type="and" >
+          <condition attribute="statecode" operator="eq" value="0" />
+          <condition attribute="adx_websiteid" operator="eq" value="{adx_websiteid}" />
+        </filter>
+      </entity>
+    </fetch>
+  </query>
+
+  <query id="content_snippet">
+    <fetch version="1.0" mapping="logical" >
+      <entity name="adx_contentsnippet" >
+        <attribute name="adx_name" />
+        <attribute name="adx_websiteid" />
+        <attribute name="adx_type" />
+        <attribute name="adx_contentsnippetid" />
+        <order attribute="adx_name" descending="false" />
+        <filter type="and" >
+          <condition attribute="statecode" operator="eq" value="0" />
+          <condition attribute="adx_websiteid" operator="eq" value="{adx_websiteid}" />
+        </filter>
+      </entity>
+    </fetch>
+  </query>
+  
+  <query id="entity_list">
+    <fetch version="1.0" mapping="logical" >
+      <entity name="adx_entitylist" >
+        <attribute name="adx_name" />
+        <attribute name="adx_entityname" />
+        <attribute name="adx_websiteid" />
+        <attribute name="adx_entitylistid" />
+        <order attribute="adx_name" descending="false" />
+        <filter type="and" >
+          <condition attribute="statecode" operator="eq" value="0" />
+          <condition attribute="adx_websiteid" operator="eq" value="{adx_websiteid}" />
+        </filter>
+      </entity>
+    </fetch>    
+  </query>
+  
+  <query id="web_link">
+    <fetch version="1.0" mapping="logical" >
+      <entity name="adx_weblink" >
+        <attribute name="adx_name" />
+        <attribute name="adx_weblinksetid" />
+        <attribute name="adx_displayorder" />
+        <attribute name="adx_pageid" />
+        <attribute name="adx_weblinkid" />
+        <order attribute="adx_displayorder" descending="false" />
+        <filter type="and" >
+          <condition attribute="statecode" operator="eq" value="0" />
+        </filter>
+        <link-entity alias="site" name="adx_weblinkset" from="adx_weblinksetid" to="adx_weblinksetid" link-type="outer" visible="false" >
+          <attribute name="adx_websiteid" />
+          <filter type="and" >
+            <condition attribute="statecode" operator="eq" value="0" />
+            <condition attribute="adx_websiteid" operator="eq" value="{adx_websiteid}" />
+          </filter>
+        </link-entity>
+      </entity>
+    </fetch>    
+  </query> 
+  
   <!-- CDS Entity -->
   <query id="entity_entity_form" name="Entity Form" primaryfield="adx_name">
     <fetch>
       <entity name="adx_entityform">
         <attribute name="adx_name" />
         <attribute name="adx_entityname" />
-        <attribute name="adx_registerstartupscript"/>
+        <attribute name="adx_registerstartupscript"/>    <attribute name="adx_instructions" />
         <attribute name="adx_referenceentitylogicalname" />
+        <attribute name="adx_settings" />
         <filter type="or" filter="true">
           <condition attribute="adx_entityname" operator="eq" />
           <condition attribute="adx_registerstartupscript" operator="like" />
+          <condition attribute="adx_settings" operator="like" />
           <condition attribute="adx_referenceentitylogicalname" operator="eq" />
         </filter>
         <filter type="and">
@@ -47,6 +170,7 @@
       </entity>
     </fetch>
   </query>
+  
   <query id="entity_entity_list" name="Entity List" primaryfield="adx_name">
     <fetch>
       <entity name="adx_entitylist">
@@ -64,6 +188,7 @@
       </entity>
     </fetch>
   </query>
+  
   <query id="entity_webformstep" name="Web Form Step" primaryfield="adx_name">
     <fetch>
       <entity name="adx_webformstep">
@@ -83,22 +208,7 @@
       </entity>
     </fetch>
   </query>
-  <query id="entity_webpage" name="Web Page" primaryfield="adx_name">
-    <fetch>
-      <entity name="adx_webpage">
-        <attribute name="adx_name" />
-        <attribute name="adx_customcss" />
-        <attribute name="adx_customjavascript" />
-        <filter type="or" filter="true">
-          <condition attribute="adx_customcss" operator="like" />
-          <condition attribute="adx_customjavascript" operator="like" />
-        </filter>
-        <filter type="and">
-          <condition attribute="adx_websiteid" operator="eq" />
-        </filter>
-      </entity>
-    </fetch>
-  </query>
+  
   <!-- CDS Attribute -->
   <query id="attribute_entityformmetadata" name="Entity Form Metadata" primaryfield="adx_name">
     <fetch>
@@ -120,6 +230,7 @@
       </entity>
     </fetch>
   </query>
+  
   <query id="attribute_entityform" name="Entity Form" primaryfield="adx_name">
     <fetch>
       <entity name="adx_entityform">
@@ -144,6 +255,7 @@
       </entity>
     </fetch>
   </query>
+  
   <query id="attribute_entitylist" name="Entity List" primaryfield="adx_name">
     <fetch>
       <entity name="adx_entitylist">
@@ -249,6 +361,7 @@
       </entity>
     </fetch>  
   </query>
+  
   <!-- CDS Forms -->
   <query id="form_entityform" name="Entity Form" primaryfield="adx_name">
     <fetch>
@@ -266,6 +379,7 @@
       </entity>
     </fetch>
   </query>
+  
   <query id="form_webformstep" name="Web Form Step" primaryfield="adx_name">
     <fetch>
       <entity name="adx_webformstep">
@@ -292,6 +406,7 @@
       </entity>
     </fetch>
   </query>
+
   <!-- CDS View -->
   <query id="view_entitylist" name="Entity View" primaryfield="adx_name">
     <fetch>
@@ -312,6 +427,7 @@
       </entity>
     </fetch>
   </query>
+  
   <!-- General/cross object -->
   <query id="shared_webtemplate" name="Web Template" primaryfield="adx_name">
     <fetch>
@@ -328,6 +444,7 @@
       </entity>
     </fetch>
   </query>
+  
   <query id="shared_contentsnippet" name="Content Snippet" primaryfield="adx_name">
     <fetch>
       <entity name="adx_contentsnippet" >
@@ -344,17 +461,60 @@
       </entity>
     </fetch>
   </query>
-  <query id="shared_weblinkset" name="Web Link Set" primaryfield="adx_name">
+
+  <query id="shared_webpage" name="Web Page" primaryfield="adx_name">
     <fetch>
-      <entity name="adx_weblinkset" >
-        <attribute name="adx_weblinksetid" />
+      <entity name="adx_webpage">
         <attribute name="adx_name" />
+        <attribute name="adx_customcss" />
+        <attribute name="adx_customjavascript" />
         <attribute name="adx_copy" />
-        <filter type="or" filter="true" >
-          <condition attribute="adx_copy" operator="like" value="%about%" />
+        <filter type="or" filter="true">
+          <condition attribute="adx_copy" operator="like" />
+          <condition attribute="adx_customcss" operator="like" />
+          <condition attribute="adx_customjavascript" operator="like" />
         </filter>
-        <filter type="and" >
-          <condition attribute="adx_websiteid" operator="eq" value="f098b549-b479-ea11-a811-000d3a5699dc" />
+        <filter type="and">
+          <condition attribute="adx_websiteid" operator="eq" />
+        </filter>
+      </entity>
+    </fetch>
+  </query>
+  
+  <query id="config_webformstep" name="Web Form Step" primaryfield="adx_name">
+    <fetch>
+      <entity name="adx_webformstep">
+        <attribute name="adx_name" />
+        <attribute name="adx_webformstepid" />
+        <attribute name="adx_registerstartupscript" />
+        <attribute name="adx_settings" />
+        <filter type="or" filter="true">
+          <condition attribute="adx_registerstartupscript" operator="like" />
+          <condition attribute="adx_settings" operator="like" />
+        </filter>
+        <link-entity name="adx_webform" from="adx_webformid" to="adx_webform" link-type="inner" alias="form" >
+          <filter type="and" >
+            <condition attribute="adx_websiteid" operator="eq" />
+          </filter>
+        </link-entity>
+      </entity>
+    </fetch>
+  </query>
+
+  <query id="config_entityform" name="Entity Form" primaryfield="adx_name">
+    <fetch>
+      <entity name="adx_entityform">
+        <attribute name="adx_name" />
+        <attribute name="adx_registerstartupscript"/>
+        <attribute name="adx_instructions" />
+        <attribute name="adx_settings" />
+        <filter type="or" filter="true">
+          <condition attribute="adx_settings" operator="like" />
+          <condition attribute="adx_instructions" operator="like" />
+          <condition attribute="adx_registerstartupscript" operator="like" />
+        </filter>
+        <filter type="and">
+          <condition attribute="adx_websiteid" operator="eq" />
         </filter>
       </entity>
     </fetch>

@@ -117,4 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CDS_Message" xml:space="preserve">
+    <value>Searching for references to CDS objects within Portal record fields and Liquid content.</value>
+  </data>
+  <data name="Config_Message" xml:space="preserve">
+    <value>Searching for references to Portal objects within Portal records Liquid content.</value>
+  </data>
 </root>
