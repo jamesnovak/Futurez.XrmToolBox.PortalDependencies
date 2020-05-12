@@ -564,17 +564,6 @@ namespace Futurez.XrmToolBox
                 }
             });
         }
-
-        /// <summary>
-        /// Method that will search for Portal Config Items
-        /// </summary>
-        /// <param name="control"></param>
-        /// <param name="message"></param>
-        private void SerchPortalConfig(EntitiesCollectionListView control, string message, bool searchNameOnly = true)
-        {
-            var entites = control.CheckedEntities;
-            ProcessPortalDependencies(new PortalConfigDependency(Service, _utility, _baseServerUrl), entites, message, searchNameOnly);
-        }
         #endregion
 
         #region UI Event Handlers
@@ -770,13 +759,13 @@ namespace Futurez.XrmToolBox
         private void LinkSearchEntityForms_Click(object sender, EventArgs e)
         {
             var entites = ListViewEntityForms.CheckedEntities;
-            ProcessPortalDependencies(new EntityFormDependency(Service, _utility, _baseServerUrl), entites, "Entity Forms");
+            ProcessPortalDependencies(new EntityFormDependency(Service, _utility, _baseServerUrl), entites, "Entity Forms", false);
         }
 
         private void LinkSearchEntityLists_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             var entites = ListViewEntityLists.CheckedEntities;
-            ProcessPortalDependencies(new EntityListDependency(Service, _utility, _baseServerUrl), entites, "Entity Lists");
+            ProcessPortalDependencies(new EntityListDependency(Service, _utility, _baseServerUrl), entites, "Entity Lists", false);
         }
 
         private void LinkSearchContentSnippets_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
