@@ -1090,6 +1090,7 @@ namespace Futurez.XrmToolBox
             // ShowNotification/HideNotification will show a5n error message if the control is not fully loaded
             try
             {
+                if (Parent == null) return;
                 HideNotification();
 
                 if (_showPortalInstallMessage)
